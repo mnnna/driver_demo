@@ -95,6 +95,12 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.h" />
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.hpp" />
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_compact.h" />
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_defines_only.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

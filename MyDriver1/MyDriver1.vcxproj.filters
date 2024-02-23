@@ -17,10 +17,27 @@
       <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
       <Extensions>inf;inv;inx;mof;mc;</Extensions>
     </Filter>
+    <Filter Include="ia32">
+      <UniqueIdentifier>{e09a4d89-37d7-4a45-8568-6988f73545a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.hpp">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_compact.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_defines_only.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
