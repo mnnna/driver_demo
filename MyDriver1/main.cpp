@@ -2,6 +2,7 @@
 #include<ntddk.h>
 #include<intrin.h>
 #include"ia32/ia32.hpp" 
+#include"struct.h"
 
 #pragma warning(disable:4389)
 void* GetPteBase() {
@@ -21,14 +22,17 @@ void* GetPteBase() {
 	return (void*)(0xffff000000000000 | (nCount << 39));
 }
 
+//set https_proxy=http://192.168.0.117:8889
+//git config --global http.proxy http ://192.168.0.112:8889
+
 void DriverUnload(PDRIVER_OBJECT DriverObject) {
 	DriverObject;
 }
 
 EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PLSA_UNICODE_STRING RegistryPath) {
-	DbgPrint("DriverObject:%p\n", DriverObject);
-	DbgPrint("RegistryPath :%wz\n", RegistryPath);
-	 DbgBreakPoint();
+	//DbgPrint("DriverObject:%p\n", DriverObject);
+	//DbgPrint("RegistryPath :%wz\n", RegistryPath);
+	//DbgBreakPoint();
 	PVOID64 PteBase = GetPteBase();
 	DbgPrint("PteBase :%p\n", PteBase);
 	DriverObject->DriverUnload = DriverUnload;
