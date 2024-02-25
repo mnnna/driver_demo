@@ -3,7 +3,7 @@
 #include<intrin.h>
 #include"ia32/ia32.hpp" 
 #include"struct.h"
-
+/* git config --global --replace - all http.proxy http ://192.168.0.112:8889 */
 #pragma warning(disable:4389)
 void* GetPteBase() {
 	cr3 CR3;
@@ -22,8 +22,17 @@ void* GetPteBase() {
 	return (void*)(0xffff000000000000 | (nCount << 39));
 }
 
-//set https_proxy=http://192.168.0.117:8889
-//git config --global http.proxy http ://192.168.0.112:8889
+bool GetPageTable(PAGE_TABLE& table) {
+	ULONG64 pteBase = 0;
+	ULONG64 pdeBase = 0;
+	ULONG64 pdpteBase = 0;
+	ULONG64 pml4eBase = 0;
+
+	ULONG64 PteBase = (ULONG64)GetPteBase();
+	DbgPrint("PteBase :%p\n", PteBase);
+
+	if (PteBase == NULL) return false; 
+}
 
 void DriverUnload(PDRIVER_OBJECT DriverObject) {
 	DriverObject;
