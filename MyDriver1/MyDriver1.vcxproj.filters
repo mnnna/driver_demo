@@ -39,5 +39,8 @@
     <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_defines_only.h">
       <Filter>ia32</Filter>
     </ClInclude>
+    <ClInclude Include="struct.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

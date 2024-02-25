@@ -23,16 +23,26 @@ void* GetPteBase() {
 }
 
 bool GetPageTable(PAGE_TABLE& table) {
-	ULONG64 pteBase = 0;
+	ULONG64 PteBase = 0;
 	ULONG64 pdeBase = 0;
 	ULONG64 pdpteBase = 0;
 	ULONG64 pml4eBase = 0;
 
-	ULONG64 PteBase = (ULONG64)GetPteBase();
+	PteBase = (ULONG64)GetPteBase();
 	DbgPrint("PteBase :%p\n", PteBase);
 
 	if (PteBase == NULL) return false; 
-}
+	pdeBase = (((PteBase & 0xffffffffffff)>>12)<< 3)+ PteBase;
+	pdpteBase = (((pdeBase & 0xffffffffffff) >> 12) << 3) + PteBase;
+	pml4eBase = (((pdpteBase & 0xffffffffffff) >> 12) << 3) + PteBase;
+
+	table.Entry.Pte		= (pte_64*)((((table.VirtualAddress & 0xffffffffffff) >> 12) << 3) + PteBase);
+	table.Entry.Pde		= (pde_64*)((((table.VirtualAddress & 0xffffffffffff) >> 21) << 3) + pdeBase);
+	table.Entry.Pdpte  = (pdpte_64*)((((table.VirtualAddress & 0xffffffffffff) >> 30) << 3) + pdpteBase);
+	table.Entry.Pml4e   = (pml4e_64*)((((table.VirtualAddress & 0xffffffffffff) >> 39) << 3) + pml4eBase);
+	
+	return true;
+}	
 
 void DriverUnload(PDRIVER_OBJECT DriverObject) {
 	DriverObject;
@@ -42,8 +52,18 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PLSA_UNICODE_STRING R
 	//DbgPrint("DriverObject:%p\n", DriverObject);
 	//DbgPrint("RegistryPath :%wz\n", RegistryPath);
 	//DbgBreakPoint();
-	PVOID64 PteBase = GetPteBase();
-	DbgPrint("PteBase :%p\n", PteBase);
+	//PVOID64 PteBase = GetPteBase();
+	//DbgPrint("PteBase :%p\n", PteBase);
+	RegistryPath; DriverObject;
 	DriverObject->DriverUnload = DriverUnload;
+
+	PAGE_TABLE pageTable{ 0 };
+	pageTable.VirtualAddress = (ULONG64)NtOpenProcess;
+	DbgPrint("NtOpenProcess: %p\n", NtOpenProcess);
+	GetPageTable(pageTable);
+	DbgPrint("pml4e :%p pdpte :%p pde :%p pte :%p ", \
+		pageTable.Entry.Pml4e, pageTable.Entry.Pdpte, pageTable.Entry.Pde, pageTable.Entry.Pte);
+
+
 	return  STATUS_SUCCESS;
 } 

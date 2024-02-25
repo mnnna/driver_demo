@@ -1,13 +1,15 @@
 #pragma once
 #include"ia32/ia32.hpp"
-# include<ntddk.h>
+#include<ntddk.h>
 
-struct PAGE_TABLE {
-	struct {
-		pte_64* pte;
-		pde_64* pde;
-		pdpte_64 pedpte;
-		pml4e_64 pml4e;
-	} Entry;
+struct PAGE_TABLE
+{
+	struct
+	{
+		pte_64* Pte;
+		pde_64* Pde;
+		pdpte_64* Pdpte;
+		pml4e_64* Pml4e;
+	}Entry;
 	ULONG64 VirtualAddress;
 };
