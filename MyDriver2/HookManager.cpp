@@ -15,7 +15,7 @@ bool HookManager::RemoveInlinehook(void* hookAddr)
 HookManager* HookManager::GetInstance()
 {
     if (mInstance == nullptr) {
-        mInstance = (HookManager*) ExAllocatePoolWithTag(NonPagedPool, sizeof(HookManager), "test");
+        mInstance = (HookManager*) ExAllocatePoolWithTag(NonPagedPool, sizeof(HookManager), 'test');
     }
     return nullptr;
 }

@@ -5,6 +5,8 @@
 #define MAX_HOOK_COUNT 10
 
 typedef struct _HOOK_INFO {
-	char originByte
+	char originBytes[14];
+	void* originAddr;
+	
 
-};
+}HOOK_INFO, *PHOOK_INFO;
