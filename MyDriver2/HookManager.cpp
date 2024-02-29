@@ -9,6 +9,11 @@ bool HookManager::InstallInlinehook(void** originAddr, void* hookAddr)
 
 bool HookManager::RemoveInlinehook(void* hookAddr)
 {
+    static bool bFrist = true;
+    if (bFrist) {
+        mTrampLinePool = (char*)ExAllocatePoolWithTag(NonPagedPool, PAGE_SIZE * 4, 'Jmp');
+    }
+
     return false;
 }
 
