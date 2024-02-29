@@ -49,7 +49,11 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegisterPath) 
 	RegisterPath;
     g_oriNtOpenProcess = NtOpenProcess;
     g_oriNtCreateFile = NtCreateFile;
-	HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtOpenProcess,(void *)FakeNtOpenProcess);
-    HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtCreateFile, (void*)FakeNtCreateFile);
+    if (HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtOpenProcess, (void*)FakeNtOpenProcess)) {
+        DbgPrintEx(102, 0, "success main");
+    };
+    if (HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtCreateFile, (void*)FakeNtCreateFile)) {
+        DbgPrintEx(102, 0, "success main");
+    };
 	return STATUS_SUCCESS; 
 }
