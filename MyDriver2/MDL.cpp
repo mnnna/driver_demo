@@ -63,5 +63,5 @@ NTSTATUS MmUnlockVaForWrite(__out  PREPROTECT_CONTEXT ReprotectContext)
     ReprotectContext->Lockedva = 0;
     ReprotectContext->Mdl = 0;
 
-    return status 
+    return status;
 }
