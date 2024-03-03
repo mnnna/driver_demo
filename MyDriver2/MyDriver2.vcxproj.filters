@@ -23,6 +23,9 @@
     <Filter Include="hde">
       <UniqueIdentifier>{e777f431-e89a-4975-96ab-f2327182c78e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MDL">
+      <UniqueIdentifier>{a3ce64ca-792b-4d36-a9de-51b71be59a04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="MyDriver2.inf">
@@ -38,6 +41,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\hde64.cpp">
       <Filter>hde</Filter>
+    </ClCompile>
+    <ClCompile Include="MDL.cpp">
+      <Filter>MDL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\table64.h">
       <Filter>hde</Filter>
+    </ClInclude>
+    <ClInclude Include="MDL.h">
+      <Filter>MDL</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

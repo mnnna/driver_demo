@@ -1,7 +1,7 @@
 #include "MDL.h"
 
 /*
-    MDL 的作用：
+    MDL  内存描述页表； 用 MDL 来描述物理内存， for DMA 设备（更快 ）
 */
 
 
@@ -25,7 +25,7 @@ NTSTATUS MmLockVaForWrite(PVOID Va, ULONG Length, PREPROTECT_CONTEXT ReprotectCo
     };
 
     __try{
-        MmProbeAndLockPages(ReprotectContext->Mdl, KernelMode, IoReadAccess);
+        MmProbeAndLockPages(ReprotectContext->Mdl, KernelMode, IoReadAccess); // access or  write 可能会蓝
     
     }
     __except(EXCEPTION_EXECUTE_HANDLER) {
