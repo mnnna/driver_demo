@@ -93,10 +93,15 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\hde64.cpp" />
     <ClCompile Include="HookManager.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\hde64.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\headers.hpp" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\pstdint.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\table64.h" />
     <ClInclude Include="HookManager.h" />
     <ClInclude Include="structer.h" />
   </ItemGroup>

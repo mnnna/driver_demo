@@ -20,6 +20,9 @@
     <Filter Include="HookMAnager">
       <UniqueIdentifier>{d78e4a59-0f7e-4d36-9c9b-bc3c7667c808}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hde">
+      <UniqueIdentifier>{e777f431-e89a-4975-96ab-f2327182c78e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Inf Include="MyDriver2.inf">
@@ -33,6 +36,9 @@
     <ClCompile Include="HookManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\hde64.cpp">
+      <Filter>hde</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HookManager.h">
@@ -40,6 +46,18 @@
     </ClInclude>
     <ClInclude Include="structer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\hde64.h">
+      <Filter>hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\headers.hpp">
+      <Filter>hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\pstdint.h">
+      <Filter>hde</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\hde\table64.h">
+      <Filter>hde</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

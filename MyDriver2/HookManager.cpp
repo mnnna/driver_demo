@@ -1,4 +1,5 @@
 #include "HookManager.h"
+#include"hde64.h"
 
 HookManager* HookManager::mInstance;
 
@@ -31,7 +32,7 @@ bool HookManager::InstallInlinehook(void** originAddr, void* hookAddr)
     char* curTrampLinePool = mTrampLinePool + mPoolUSED;
     char* startJmoAddr = (char*)*originAddr; 
     UINT32 uBreakBytes = 0; 
-
+  
 }
 
 bool HookManager::RemoveInlinehook(void* hookAddr)
