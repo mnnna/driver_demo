@@ -1,5 +1,10 @@
 #include "MDL.h"
 
+/*
+    MDL µÄ×÷ÓÃ£º
+*/
+
+
 NTSTATUS MmLockVaForWrite(PVOID Va, ULONG Length, PREPROTECT_CONTEXT ReprotectContext)
 {   
     NTSTATUS status;
