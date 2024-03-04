@@ -28,11 +28,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="MyDriver2.inf">
-      <Filter>Driver Files</Filter>
-    </Inf>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

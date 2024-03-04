@@ -1,9 +1,10 @@
 #include "HookManager.h"
 #include"hde64.h"
+#include"MDL.h"
 
 HookManager* HookManager::mInstance;
 
-bool HookManager::InstallInlinehook(void** originAddr, void* hookAddr)
+bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 {
     static bool bFrist = true;
     if (bFrist) {
@@ -65,10 +66,16 @@ bool HookManager::InstallInlinehook(void** originAddr, void* hookAddr)
     memcpy(curTrampLinePool, startJmpAddr, uBreakBytes); //保存原函数的 内容
     memcpy(curTrampLinePool + uBreakBytes, TrampLineCode, trampLineByteCount);  //return 语句
 
+
+    PREPROTECT_CONTEXT Content;
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
-    
+    if (!MmLockVaForWrite(startJmpAddr, PAGE_SIZE, Content)) return false;
 
+    if(!MmUnlockVaForWrite(Content)) return false ;
+    RtlCopyMemory(Content->Lockedva, AbsoluteJmpCode, fnBreakByteLeast);
 
+    *originAddr = curTrampLinePool;
+    mPoolUSED += (uBreakBytes + trampLineByteCount);
 }
 
 bool HookManager::RemoveInlinehook(void* hookAddr)

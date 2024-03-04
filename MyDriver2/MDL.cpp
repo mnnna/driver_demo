@@ -5,7 +5,7 @@
 */
 
 
-NTSTATUS MmLockVaForWrite(PVOID Va, ULONG Length, PREPROTECT_CONTEXT ReprotectContext)
+NTSTATUS MmLockVaForWrite(PVOID Va, ULONG Length, __out PREPROTECT_CONTEXT ReprotectContext)
 {   
     NTSTATUS status;
     status = STATUS_SUCCESS;
@@ -18,7 +18,7 @@ NTSTATUS MmLockVaForWrite(PVOID Va, ULONG Length, PREPROTECT_CONTEXT ReprotectCo
         参数：通常需要传递要描述的内存区域的虚拟地址（Va）和长度（Length），以及其他参数如是否分配辅助表、是否从非分页池中分配等。
         使用场景：主要用于创建描述内存页信息的 MDL 结构，但并不进行内存页的映射操作。
     */
-    ReprotectContext->Mdl = IoAllocateMdl(Va, Length, FALSE, FALSE, NULL);
+    ReprotectContext->Mdl = IoAllocateMdl(Va, Length, FALSE, FALSE, NULL); //分配缓冲区
 
     if (!ReprotectContext->Mdl) {
         return STATUS_INSUFFICIENT_RESOURCES;
@@ -37,7 +37,7 @@ NTSTATUS MmLockVaForWrite(PVOID Va, ULONG Length, PREPROTECT_CONTEXT ReprotectCo
             参数：需要传递已经分配好的 MDL 结构（ReprotectContext->Mdl）、映射的访问模式（KernelMode）、缓存类型（MmCached）、映射的虚拟地址和是否是正常优先级等。
             使用场景：主要用于将已经描述的内存页映射到系统地址空间中，以便进行读写操作等。常见的使用场景包括将用户空间的缓冲区映射到内核空间，或者将内核空间的缓冲区映射到用户空间。
     */
-    ReprotectContext->Lockedva = (PUCHAR)MmMapLockedPagesSpecifyCache(ReprotectContext->Mdl, KernelMode, MmNonCached, NULL, FALSE, NormalPagePriority);
+    ReprotectContext->Lockedva = (PUCHAR)MmMapLockedPagesSpecifyCache(ReprotectContext->Mdl, KernelMode, MmNonCached, NULL, FALSE, NormalPagePriority);  //真正实现映射 分配虚拟地址
     if (!ReprotectContext->Lockedva) {
         IoFreeMdl(ReprotectContext->Mdl);
         ReprotectContext->Mdl = 0;
