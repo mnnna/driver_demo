@@ -59,13 +59,15 @@ bool HookManager::InstallInlinehook(void** originAddr, void* hookAddr)
         uBreakBytes = uBreakBytes + hdeinfo.len;
     };
 
-    *(PUINT32)&TrampLineCode[6] = (UINT32)((UINT64)(startJmpAddr + uBreakBytes) & 0xFFFFFFFF);
-    *(PUINT32)&TrampLineCode[15] = (UINT32)((UINT64)(startJmpAddr + uBreakBytes)>>32 & 0xFFFFFFFF);
+    *(PUINT32)&TrampLineCode[6] = (UINT32)((UINT64)(startJmpAddr + uBreakBytes) & 0xFFFFFFFF); // 取高位
+    *(PUINT32)&TrampLineCode[15] = (UINT32)((UINT64)(startJmpAddr + uBreakBytes)>>32 & 0xFFFFFFFF); //取低位
 
     memcpy(curTrampLinePool, startJmpAddr, uBreakBytes); //保存原函数的 内容
     memcpy(curTrampLinePool + uBreakBytes, TrampLineCode, trampLineByteCount);  //return 语句
 
-    *(void **)&AbsoluteJmpCode[2] = hookAddr // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
+    *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
+    
+
 
 }
 
