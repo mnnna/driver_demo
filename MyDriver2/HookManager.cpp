@@ -1,6 +1,11 @@
 #include "HookManager.h"
 #include"hde64.h"
-#include"MDL.h"
+
+#pragma warning (disable : 4838)
+#pragma warning (disable : 4309)
+#pragma warning (disable : 4244)
+#pragma warning (disable : 6328)
+#pragma warning (disable : 6066)
 
 HookManager* HookManager::mInstance;
 
@@ -8,7 +13,7 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 {
     static bool bFrist = true;
     if (bFrist) {
-        mTrampLinePool = (char*)ExAllocatePoolWithTag(NonPagedPool, PAGE_SIZE * 4, 'Jmp');
+        mTrampLinePool = (char*)ExAllocatePool2(NonPagedPool, PAGE_SIZE * 4, 'Jmp');
 
         if (!mTrampLinePool) {
             DbgPrint("Error InstallInlinehook");
@@ -67,7 +72,7 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
     memcpy(curTrampLinePool + uBreakBytes, TrampLineCode, trampLineByteCount);  //return 语句
 
 
-    PREPROTECT_CONTEXT Content;
+    PREPROTECT_CONTEXT Content = { 0 };
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
     if (!MmLockVaForWrite(startJmpAddr, PAGE_SIZE, Content)) return false;
 
@@ -76,18 +81,20 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 
     *originAddr = curTrampLinePool;
     mPoolUSED += (uBreakBytes + trampLineByteCount);
+
+    return true;
 }
 
 bool HookManager::RemoveInlinehook(void* hookAddr)
 {
-
+    hookAddr;
     return false;
 }
 
 HookManager* HookManager::GetInstance()
 {
     if (mInstance == nullptr) {
-        mInstance = (HookManager*) ExAllocatePoolWithTag(NonPagedPool, sizeof(HookManager), 'test');
+        mInstance = (HookManager*) ExAllocatePool2(NonPagedPool, sizeof(HookManager), 'test');
     }
     return mInstance;
 }

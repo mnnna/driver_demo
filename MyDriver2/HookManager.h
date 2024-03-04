@@ -1,6 +1,4 @@
 #pragma once
-#include<ntifs.h>
-#include<ntddk.h>
 #include"structer.h"
 #include"MDL.h"
 

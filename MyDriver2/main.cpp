@@ -40,13 +40,14 @@ NTSTATUS NTAPI FakeNtCreateFile(
 
 
 void DriverUnload(PDRIVER_OBJECT DriverObject) {
+    DriverObject;
     HookManager::GetInstance()->RemoveInlinehook((void*)FakeNtOpenProcess);
     HookManager::GetInstance()->RemoveInlinehook((void*)FakeNtCreateFile);
 
 }
  
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegisterPath) {
-	RegisterPath;
+    RegisterPath; DriverObject;
     g_oriNtOpenProcess = NtOpenProcess;
     g_oriNtCreateFile = NtCreateFile;
     if (HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtOpenProcess, (void*)FakeNtOpenProcess)) {
