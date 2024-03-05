@@ -2,8 +2,8 @@
 #include<ntddk.h>
 #include"HookManager.h"
 
-typedef NTSTATUS(NTAPI *pfnNtOpenProcess)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PCLIENT_ID);
-typedef NTSTATUS(NTAPI *pfnNtCreateFile)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES,PIO_STATUS_BLOCK,PLARGE_INTEGER, ULONG, ULONG, ULONG, ULONG, PVOID, ULONG);
+typedef NTSTATUS(NTAPI* pfnNtOpenProcess)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PCLIENT_ID);
+typedef NTSTATUS(NTAPI* pfnNtCreateFile)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PIO_STATUS_BLOCK, PLARGE_INTEGER, ULONG, ULONG, ULONG, ULONG, PVOID, ULONG);
 
 pfnNtOpenProcess g_oriNtOpenProcess;
 pfnNtCreateFile g_oriNtCreateFile;
@@ -51,11 +51,12 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
     DriverObject->DriverUnload = DriverUnload;
     g_oriNtOpenProcess = NtOpenProcess;
     g_oriNtCreateFile = NtCreateFile;
+    //DbgPrintEx(102, 0, "success main");
     if (HookManager::GetInstance()->InstallInlinehook((void**)&g_oriNtOpenProcess, (void*)FakeNtOpenProcess)) {
         DbgPrintEx(102, 0, "success main");
     };
-    if (HookManager::GetInstance()->InstallInlinehook((void**)&g_oriNtCreateFile, (void*)FakeNtCreateFile)) {
-        DbgPrintEx(102, 0, "success main");
-    };
+    //if (HookManager::GetInstance()->InstallInlinehook((void**)&g_oriNtCreateFile, (void*)FakeNtCreateFile)) {
+    //    DbgPrintEx(102, 0, "success main");
+    //};
 	return STATUS_SUCCESS; 
 }

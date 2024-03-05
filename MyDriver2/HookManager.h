@@ -8,10 +8,10 @@ class HookManager
 public: 
 	bool InstallInlinehook(__inout void** originAddr, void* hookAddr );
 	bool RemoveInlinehook(void* hookAddr);
-
 	static HookManager* GetInstance();
 
 	UINT32 mHookCount = 0; 
+
 	HOOK_INFO mHookInfo[MAX_HOOK_COUNT] = { 0 };
 
 	char* mTrampLinePool = 0;

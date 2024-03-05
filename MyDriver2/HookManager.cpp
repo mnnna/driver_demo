@@ -1,5 +1,6 @@
 #include "HookManager.h"
 #include"hde64.h"
+HookManager* HookManager::mInstance;
 
 #pragma warning (disable : 4838)
 #pragma warning (disable : 4309)
@@ -7,12 +8,11 @@
 #pragma warning (disable : 6328)
 #pragma warning (disable : 6066)
 
-HookManager* HookManager::mInstance;
 
 bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 {
-    static bool bFrist = true;
-    if (bFrist) {
+    static bool bFirst = true;
+    if (bFirst) {
         mTrampLinePool = (char*)ExAllocatePool2(NonPagedPool, PAGE_SIZE * 4, 'Jmp');
 
         if (!mTrampLinePool) {
@@ -22,7 +22,8 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 
         RtlZeroMemory(mTrampLinePool, PAGE_SIZE * 4);   
         mPoolUSED = 0;
-        bFrist = false;
+        bFirst = false;
+ 
     }
 
     if (mHookCount == MAX_HOOK_COUNT) {
@@ -38,7 +39,9 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
     mov dword ptr ds : [rsp] , 0
     mov dword ptr ds : [rsp + 4] , 0
     */
-    char TrampLineCode[trampLineByteCount] = { 0x6A,0x00 ,0x3E ,0xC7 ,0x04 ,0x24 ,0x00 ,0x00 ,0x00 ,0x00 ,0x3E ,0xC7 ,0x44 ,0x24 ,0x04 ,0x00 ,0x00 ,0x00 ,0x00 ,0xC3 };
+    char TrampLineCode[trampLineByteCount] = { 
+        0x6A,0x00 ,0x3E ,0xC7 ,0x04 ,0x24 ,0x00 ,0x00 ,0x00 ,
+        0x00 ,0x3E ,0xC7 ,0x44 ,0x24 ,0x04 ,0x00 ,0x00 ,0x00 ,0x00 ,0xC3 };
 
     /*
         mov rax, 0 
@@ -61,7 +64,7 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
             DbgPrint("hde64_disasm error \n");
             return false;
         };
-        uBreakBytes = uBreakBytes + hdeinfo.len;
+        uBreakBytes += hdeinfo.len;
     };
 
     *(PUINT32)&TrampLineCode[6] = (UINT32)((UINT64)(startJmpAddr + uBreakBytes) & 0xFFFFFFFF); // 取高位
@@ -71,17 +74,18 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
     memcpy(curTrampLinePool + uBreakBytes, TrampLineCode, trampLineByteCount);  //return 语句
 
 
-    REPROTECT_CONTEXT Content = { 0 };
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
+    REPROTECT_CONTEXT Content = { 0 };
 
-    if (!NT_SUCCESS(MmLockVaForWrite(startJmpAddr, PAGE_SIZE, &Content))) return false;
+    if (!NT_SUCCESS(MmLockVaForWrite(startJmpAddr, PAGE_SIZE, &Content))) {
+        return false;
+    }
 
     RtlCopyMemory(Content.Lockedva, AbsoluteJmpCode, fnBreakByteLeast);
-
-    if(!NT_SUCCESS(MmUnlockVaForWrite(&Content)))                        return false ;
-
-
-
+    
+    if (!NT_SUCCESS(MmUnlockVaForWrite(&Content))) {
+        return false;
+    }
     *originAddr = curTrampLinePool;
     mPoolUSED += (uBreakBytes + trampLineByteCount);
 
@@ -90,7 +94,7 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 
 bool HookManager::RemoveInlinehook(void* hookAddr)
 {
-    hookAddr;
+    UNREFERENCED_PARAMETER(hookAddr);
     return false;
 }
 
