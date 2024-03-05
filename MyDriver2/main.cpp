@@ -40,20 +40,21 @@ NTSTATUS NTAPI FakeNtCreateFile(
 
 
 void DriverUnload(PDRIVER_OBJECT DriverObject) {
-    DriverObject;
+    UNREFERENCED_PARAMETER(DriverObject);
     HookManager::GetInstance()->RemoveInlinehook((void*)FakeNtOpenProcess);
     HookManager::GetInstance()->RemoveInlinehook((void*)FakeNtCreateFile);
 
 }
  
-NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegisterPath) {
-    RegisterPath; DriverObject;
+EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegisterPath){
+    UNREFERENCED_PARAMETER(RegisterPath);
+    DriverObject->DriverUnload = DriverUnload;
     g_oriNtOpenProcess = NtOpenProcess;
     g_oriNtCreateFile = NtCreateFile;
-    if (HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtOpenProcess, (void*)FakeNtOpenProcess)) {
+    if (HookManager::GetInstance()->InstallInlinehook((void**)&g_oriNtOpenProcess, (void*)FakeNtOpenProcess)) {
         DbgPrintEx(102, 0, "success main");
     };
-    if (HookManager::GetInstance()->InstallInlinehook((void**)g_oriNtCreateFile, (void*)FakeNtCreateFile)) {
+    if (HookManager::GetInstance()->InstallInlinehook((void**)&g_oriNtCreateFile, (void*)FakeNtCreateFile)) {
         DbgPrintEx(102, 0, "success main");
     };
 	return STATUS_SUCCESS; 

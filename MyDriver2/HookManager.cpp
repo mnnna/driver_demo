@@ -20,10 +20,9 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
             return false;
         };
 
-        RtlSecureZeroMemory(mTrampLinePool, PAGE_SIZE * 4);   
+        RtlZeroMemory(mTrampLinePool, PAGE_SIZE * 4);   
         mPoolUSED = 0;
         bFrist = false;
-        return true;
     }
 
     if (mHookCount == MAX_HOOK_COUNT) {
@@ -31,7 +30,7 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
         return false;
     };
 
-    const UINT32 trampLineByteCount = 30;
+    const UINT32 trampLineByteCount = 20;
     const UINT32 fnBreakByteLeast = 12;
 
     /*
@@ -72,12 +71,16 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
     memcpy(curTrampLinePool + uBreakBytes, TrampLineCode, trampLineByteCount);  //return 语句
 
 
-    PREPROTECT_CONTEXT Content = { 0 };
+    REPROTECT_CONTEXT Content = { 0 };
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
-    if (!MmLockVaForWrite(startJmpAddr, PAGE_SIZE, Content)) return false;
 
-    if(!MmUnlockVaForWrite(Content)) return false ;
-    RtlCopyMemory(Content->Lockedva, AbsoluteJmpCode, fnBreakByteLeast);
+    if (!NT_SUCCESS(MmLockVaForWrite(startJmpAddr, PAGE_SIZE, &Content))) return false;
+
+    RtlCopyMemory(Content.Lockedva, AbsoluteJmpCode, fnBreakByteLeast);
+
+    if(!NT_SUCCESS(MmUnlockVaForWrite(&Content)))                        return false ;
+
+
 
     *originAddr = curTrampLinePool;
     mPoolUSED += (uBreakBytes + trampLineByteCount);
