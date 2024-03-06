@@ -13,7 +13,7 @@ NTSTATUS NTAPI FakeNtOpenProcess(
     _In_ ACCESS_MASK DesiredAccess,
     _In_ POBJECT_ATTRIBUTES ObjectAttributes,
     _In_opt_ PCLIENT_ID ClientId) {
-    DbgPrintEx(102,0, "Fake NtOpenProcess");
+    DbgPrintEx(102,0, "Fake NtOpenProcess \n");   // 没有 \n  在windbg 的log 中看不到
     
     return g_oriNtOpenProcess(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
 };

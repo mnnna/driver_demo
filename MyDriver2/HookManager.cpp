@@ -7,13 +7,14 @@ HookManager* HookManager::mInstance;
 #pragma warning (disable : 4244)
 #pragma warning (disable : 6328)
 #pragma warning (disable : 6066)
+#pragma warning (disable : 4996)
 
 
 bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
 {
     static bool bFirst = true;
     if (bFirst) {
-        mTrampLinePool = (char*)ExAllocatePool2(NonPagedPool, PAGE_SIZE * 4, 'Jmp');
+        mTrampLinePool = (char*)ExAllocatePoolWithTag(NonPagedPool, PAGE_SIZE * 4, 'Jmp'); // ExAllocatePool2 À¶ÆÁ£¡£¡£¡£¡£¡£¡£¡
 
         if (!mTrampLinePool) {
             DbgPrint("Error InstallInlinehook");
@@ -101,7 +102,7 @@ bool HookManager::RemoveInlinehook(void* hookAddr)
 HookManager* HookManager::GetInstance()
 {
     if (mInstance == nullptr) {
-        mInstance = (HookManager*) ExAllocatePool2(NonPagedPool, sizeof(HookManager), 'test');
+        mInstance = (HookManager*)ExAllocatePoolWithTag(NonPagedPool, sizeof(HookManager), 'test');
     }
     return mInstance;
 }
