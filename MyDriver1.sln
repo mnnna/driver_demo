@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyDriver1", "MyDriver1\MyDr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyDriver2", "MyDriver2\MyDriver2.vcxproj", "{D67C3BCF-5396-47BC-A441-35EC43F51AE8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyDriver3", "Mydriver3\MyDriver3.vcxproj", "{056A8978-3F56-449C-84F9-B158949FCAEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -39,6 +41,18 @@ Global
 		{D67C3BCF-5396-47BC-A441-35EC43F51AE8}.Release|x64.ActiveCfg = Release|x64
 		{D67C3BCF-5396-47BC-A441-35EC43F51AE8}.Release|x64.Build.0 = Release|x64
 		{D67C3BCF-5396-47BC-A441-35EC43F51AE8}.Release|x64.Deploy.0 = Release|x64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Debug|ARM64.Build.0 = Debug|ARM64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Debug|x64.ActiveCfg = Debug|x64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Debug|x64.Build.0 = Debug|x64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Debug|x64.Deploy.0 = Debug|x64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Release|ARM64.ActiveCfg = Release|ARM64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Release|ARM64.Build.0 = Release|ARM64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Release|ARM64.Deploy.0 = Release|ARM64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Release|x64.ActiveCfg = Release|x64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Release|x64.Build.0 = Release|x64
+		{056A8978-3F56-449C-84F9-B158949FCAEE}.Release|x64.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
