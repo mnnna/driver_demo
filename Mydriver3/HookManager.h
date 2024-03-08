@@ -13,7 +13,7 @@ public:
 
 private: 
 	bool IsolationPageTable(PEPROCESS process, void* isolateioAddr);
-	bool SplitLargePage(pde_64 InPde, pde_64& OutPde );
+	bool SplitLargePage(pde_64 InPde, pde_64& OutPde ); // 大页分割成小页
 
 	UINT32 mHookCount = 0; 
 
