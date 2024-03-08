@@ -1,5 +1,7 @@
 #include "HookManager.h"
 #include"hde64.h"
+#include"PageTable.h"
+
 HookManager* HookManager::mInstance;
 
 #pragma warning (disable : 4838)
@@ -116,10 +118,12 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
     KAPC_STATE apc; 
     KeStackAttachProcess(process, &apc);
 
-    void* alignAddrr;
+    void* alignAddrr; // ?? 
 
     PAGE_ALIGN(isolateioAddr); // 0x1000 ¶ÔÆë
-
+    PAGE_TABLE page_table = { 0 };
+    page_table.VirtualAddress = alignAddrr;
+    GetPageTable(page_table);
 
     KeUnstackDetachProcess(&apc);
     return false;
