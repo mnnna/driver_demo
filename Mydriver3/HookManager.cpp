@@ -10,7 +10,7 @@ HookManager* HookManager::mInstance;
 #pragma warning (disable : 4996)
 
 
-bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
+bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void* hookAddr)
 {
     static bool bFirst = true;
     if (bFirst) {
@@ -31,6 +31,10 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
         DbgPrint("FULL");
         return false;
     };
+    PEPROCESS process;
+    if (!NT_SUCCESS(PsLookupProcessByProcessId(pid, &process))) return false ;
+    IsolationPageTable(process, *originAddr);
+
 
     const UINT32 trampLineByteCount = 20;
     const UINT32 fnBreakByteLeast = 12;
@@ -93,7 +97,7 @@ bool HookManager::InstallInlinehook(__inout void** originAddr, void* hookAddr)
     return true;
 }
 
-bool HookManager::RemoveInlinehook(void* hookAddr)
+bool HookManager::RemoveInlinehook(HANDLE pid, void* hookAddr)
 {
     UNREFERENCED_PARAMETER(hookAddr);
     return false;
@@ -105,4 +109,18 @@ HookManager* HookManager::GetInstance()
         mInstance = (HookManager*)ExAllocatePoolWithTag(NonPagedPool, sizeof(HookManager), 'test');
     }
     return mInstance;
+}
+
+bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
+{
+    KAPC_STATE apc; 
+    KeStackAttachProcess(process, &apc);
+
+    void* alignAddrr;
+
+    PAGE_ALIGN(isolateioAddr); // 0x1000 ¶ÔÆë
+
+
+    KeUnstackDetachProcess(&apc);
+    return false;
 }

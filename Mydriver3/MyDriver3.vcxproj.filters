@@ -26,6 +26,12 @@
     <Filter Include="MDL">
       <UniqueIdentifier>{a3ce64ca-792b-4d36-a9de-51b71be59a04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ia32">
+      <UniqueIdentifier>{e582634a-d2d6-4b8a-a10e-981e56b23a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PageTable">
+      <UniqueIdentifier>{c79b6c73-7be1-4d51-8d60-db14353ca5c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -39,6 +45,9 @@
     </ClCompile>
     <ClCompile Include="HookManager.cpp">
       <Filter>HookMAnager</Filter>
+    </ClCompile>
+    <ClCompile Include="PageTable.cpp">
+      <Filter>PageTable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +71,21 @@
     </ClInclude>
     <ClInclude Include="HookManager.h">
       <Filter>HookMAnager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\code\源码\ia32\ia32.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\code\源码\ia32\ia32.hpp">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\code\源码\ia32\ia32_compact.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\code\源码\ia32\ia32_defines_only.h">
+      <Filter>ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="PageTable.h">
+      <Filter>PageTable</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
