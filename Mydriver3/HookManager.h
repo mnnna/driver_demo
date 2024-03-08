@@ -13,6 +13,7 @@ public:
 
 private: 
 	bool IsolationPageTable(PEPROCESS process, void* isolateioAddr);
+	bool SplitLargePage(pde_64 InPde, pde_64& OutPde );
 
 	UINT32 mHookCount = 0; 
 
@@ -34,7 +35,7 @@ struct PAGE_TABLE
 		pdpte_64* Pdpte;
 		pml4e_64* Pml4e;
 	}Entry;
-	ULONG64 VirtualAddress;
+	void* VirtualAddress;
 };
 
 
