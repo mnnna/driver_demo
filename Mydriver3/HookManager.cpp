@@ -125,6 +125,21 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
     page_table.VirtualAddress = alignAddrr;
     GetPageTable(page_table);
 
+    if (page_table.Entry.Pde->large_page) {
+        DbgPrint("size is 2MB \n");
+    }
+    else if (page_table.Entry.Pdpte->large_page) {
+        DbgPrint("size is 1GB \n");
+    }
+    else {
+        DbgPrint("size is 4KB \n");
+    }
+
     KeUnstackDetachProcess(&apc);
+    return false;
+}
+
+bool HookManager::SplitLargePage(pde_64 InPde, pde_64& OutPde)
+{
     return false;
 }
