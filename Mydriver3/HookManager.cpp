@@ -115,6 +115,7 @@ HookManager* HookManager::GetInstance()
 
 bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
 {
+    bool bRet;
     KAPC_STATE apc; 
     KeStackAttachProcess(process, &apc);
 
@@ -124,10 +125,13 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
     PAGE_TABLE page_table = { 0 };
     page_table.VirtualAddress = alignAddrr;
     GetPageTable(page_table);
+    pde_64 NewPde;
 
     while (true) {
         if (page_table.Entry.Pde->large_page) {
             DbgPrint("size is 2MB \n");
+            bRet = SplitLargePage(*page_table.Entry.Pde, NewPde);
+            if (!bRet) break;
         }
         else if (page_table.Entry.Pdpte->large_page) {
             DbgPrint("size is 1GB \n");
@@ -138,11 +142,40 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
         }
 
         KeUnstackDetachProcess(&apc);
+        ObDereferenceObject(process);
         return false;
     }
 }
 
 bool HookManager::SplitLargePage(pde_64 InPde, pde_64& OutPde)
 {
-    return false;
+    PHYSICAL_ADDRESS MaxAddrPA{ 0 }, LowAddrPa{ 0 }; 
+    MaxAddrPA.QuadPart = MAXULONG64;
+    LowAddrPa.QuadPart =  0 ;
+    pt_entry_64* Pt;
+    uint64_t StartPfn  =  InPde.page_frame_number;
+
+    Pt = (pt_entry_64*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached); // ”ÎMmAllocateContiguousMemory £ø 
+    if (!Pt) {
+        DbgPrint("failed to MmAllocateContiguousMemorySpecifyCache");
+        return false;
+    }
+
+    for (int i = 0; i < 512; i++) {
+        Pt[i].flags = InPde.flags;
+        Pt[i].large_page = 0;
+        Pt[i].page_frame_number = StartPfn + i;
+    }
+
+    OutPde.flags = InPde.flags;
+    OutPde.large_page = 0; 
+    OutPde.page_frame_number = VaToPa(Pt) / PAGE_SIZE;
+    return true;
+}
+
+ULONG64 HookManager::VaToPa(void* va)
+{
+    PHYSICAL_ADDRESS pa; 
+    pa = MmGetPhysicalAddress(va);
+    return pa.QuadPart;
 }
