@@ -1,4 +1,5 @@
 #include "HookManager.h"
+#include<intrin.h>
 #include"hde64.h"
 #include"PageTable.h"
 
@@ -35,7 +36,11 @@ bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void*
     };
     PEPROCESS process;
     if (!NT_SUCCESS(PsLookupProcessByProcessId(pid, &process))) return false ;
-    IsolationPageTable(process, *originAddr);
+    
+    if (!IsolationPageTable(process, *originAddr)) {
+        ObDereferenceObject(process);
+        return false;
+    }
 
 
     const UINT32 trampLineByteCount = 20;
@@ -115,16 +120,17 @@ HookManager* HookManager::GetInstance()
 
 bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
 {
-    bool bRet;
+    bool bRet = false;
     KAPC_STATE apc; 
     KeStackAttachProcess(process, &apc);
-
+    pde_64 NewPde = { 0 };
     void* alignAddrr; // ?? 
 
-    PAGE_ALIGN(isolateioAddr); // 0x1000 ¶ÔÆë
+    alignAddrr= PAGE_ALIGN(isolateioAddr); // 0x1000 ¶ÔÆë
     PAGE_TABLE page_table = { 0 };
     page_table.VirtualAddress = alignAddrr;
     GetPageTable(page_table);
+
     pde_64 NewPde;
 
     while (true) {
@@ -139,12 +145,16 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
         }
         else {
             DbgPrint("size is 4KB \n");
+            break;
         }
-
-        KeUnstackDetachProcess(&apc);
-        ObDereferenceObject(process);
-        return false;
+        cr3 Cr3; 
+        Cr3.flags = __readcr3();
+        ReplacePageTable(Cr3, alignAddrr, &NewPde);
     }
+
+    KeUnstackDetachProcess(&apc);
+
+    return bRet;
 }
 
 bool HookManager::SplitLargePage(pde_64 InPde, pde_64& OutPde)
@@ -171,6 +181,13 @@ bool HookManager::SplitLargePage(pde_64 InPde, pde_64& OutPde)
     OutPde.large_page = 0; 
     OutPde.page_frame_number = VaToPa(Pt) / PAGE_SIZE;
     return true;
+}
+
+bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
+{
+
+
+    return false;
 }
 
 ULONG64 HookManager::VaToPa(void* va)

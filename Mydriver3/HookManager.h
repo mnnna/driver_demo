@@ -14,6 +14,10 @@ public:
 private: 
 	bool IsolationPageTable(PEPROCESS process, void* isolateioAddr);
 	bool SplitLargePage(pde_64 InPde, pde_64& OutPde ); // 大页分割成小页
+	bool ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde);
+
+public:
+	ULONG64 VaToPa(void* va);
 
 	UINT32 mHookCount = 0; 
 
