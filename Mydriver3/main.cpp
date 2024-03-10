@@ -7,7 +7,7 @@ typedef NTSTATUS(NTAPI* pfnNtCreateFile)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTE
 
 pfnNtOpenProcess g_oriNtOpenProcess;
 pfnNtCreateFile g_oriNtCreateFile;
-HANDLE g_pid = (HANDLE) 3316;
+HANDLE g_pid = (HANDLE) 1808;
 
 NTSTATUS NTAPI FakeNtOpenProcess(
     _Out_ PHANDLE ProcessHandle,

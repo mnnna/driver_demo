@@ -171,6 +171,7 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
         else {
             DbgPrint("Failed isolation \n");
         }
+        break;
     }
 
     KeUnstackDetachProcess(&apc);
