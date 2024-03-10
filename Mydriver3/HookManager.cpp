@@ -87,7 +87,13 @@ bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void*
 
 
     for (int i = 0; i < MAX_HOOK_COUNT; i++) {
-        if(mHookInfo[i].)
+        if (mHookInfo[i].pid != pid) {
+            mHookInfo[i].pid = pid; 
+            mHookInfo[i].originAddr = startJmpAddr;
+            memcpy(mHookInfo[i].originBytes, startJmpAddr, uBreakBytes);
+            mHookCount++;
+            break;
+        }
     }
 
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
@@ -110,6 +116,7 @@ bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void*
 
 bool HookManager::RemoveInlinehook(HANDLE pid, void* hookAddr)
 {
+    pid;
     UNREFERENCED_PARAMETER(hookAddr);
     return false;
 }
@@ -134,8 +141,6 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
     PAGE_TABLE page_table = { 0 };
     page_table.VirtualAddress = alignAddrr;
     GetPageTable(page_table);
-
-    pde_64 NewPde;
 
     while (true) {
         if (page_table.Entry.Pde->large_page) {
