@@ -189,6 +189,7 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
     PHYSICAL_ADDRESS MaxAddrPA{ 0 }, LowAddrPa{ 0 };
     MaxAddrPA.QuadPart = MAXULONG64;
     LowAddrPa.QuadPart = 0;
+    PAGE_TABLE pagetable = { 0 };
 
     Va4kb = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
     Vapt = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
@@ -201,6 +202,38 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
         DbgPrint(" Apply mm failed");
         return false;
     }
+
+    pagetable.VirtualAddress = replaceAlignAddr;
+    GetPageTable(pagetable);
+
+    UINT64 pml4eindex = ((UINT64)replaceAlignAddr & 0xFF8000000000) >> 39;
+    UINT64 pdpteindex = ((UINT64)replaceAlignAddr & 0x7FC0000000) >> 30;
+    UINT64 pdeindex = ((UINT64)replaceAlignAddr & 0x3FE00000) >> 21;
+    UINT64 pteindex = ((UINT64)replaceAlignAddr & 0x1FF000) >> 12;
+     
+    if (pagetable.Entry.Pde->large_page) {
+        MmFreeContiguousMemorySpecifyCache(Vapt, PAGE_SIZE, MmCached);
+        Vapt = (uint64_t*)PaToVa(pde->page_frame_number * PAGE_SIZE);
+    }
+    else {
+        memcpy(Vapt, pagetable.Entry.Pte - pteindex, PAGE_SIZE);
+    }
+    memcpy(Va4kb, replaceAlignAddr, PAGE_SIZE);
+    memcpy(Va4kb, pagetable.Entry.Pde - pdeindex, PAGE_SIZE);
+    memcpy(VaPdpt, pagetable.Entry.Pdpte - pdpteindex, PAGE_SIZE);
+
+    auto pReplacePte = (pte_64*) &Vapt[pteindex]; // & 
+    pReplacePte->page_frame_number = VaToPa(pReplacePte);
+
+    auto pReplacePde = (pde_64*)&VaPdt[pdeindex]; // & 
+    pReplacePde->page_frame_number = VaToPa(pReplacePde);
+
+    auto pReplacePdpte = (pdpte_64*)&VaPdpt[pdpteindex]; // & 
+    pReplacePdpte->page_frame_number = VaToPa(pReplacePdpte);
+
+    auto pReplacePml4e = (pml4e_64*)&VaPml4t[pml4eindex]; // & 
+    pReplacePml4e->page_frame_number = VaToPa(pReplacePml4e);
+
 
     return false;
 }
