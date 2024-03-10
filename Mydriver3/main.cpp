@@ -7,7 +7,7 @@ typedef NTSTATUS(NTAPI* pfnNtCreateFile)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTE
 
 pfnNtOpenProcess g_oriNtOpenProcess;
 pfnNtCreateFile g_oriNtCreateFile;
-HANDLE g_pid = (HANDLE) NULL;
+HANDLE g_pid = (HANDLE) 3316;
 
 NTSTATUS NTAPI FakeNtOpenProcess(
     _Out_ PHANDLE ProcessHandle,
@@ -53,8 +53,9 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
     g_oriNtOpenProcess = NtOpenProcess;
     g_oriNtCreateFile = NtCreateFile;
     //DbgPrintEx(102, 0, "success main");
+    DbgPrintEx(102, 0, "1 \n");
     if (HookManager::GetInstance()->InstallInlinehook(g_pid, (void**)&g_oriNtOpenProcess, (void*)FakeNtOpenProcess)) {
-        DbgPrintEx(102, 0, "success main");
+        DbgPrintEx(102, 0, "success main \n");
     };
     //if (HookManager::GetInstance()->InstallInlinehook((void**)&g_oriNtCreateFile, (void*)FakeNtCreateFile)) {
     //    DbgPrintEx(102, 0, "success main");

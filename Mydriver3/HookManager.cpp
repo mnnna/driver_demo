@@ -160,7 +160,6 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
         }
         else {
             DbgPrint("size is 4KB \n");
-            break;
         }
         cr3 Cr3; 
         Cr3.flags = __readcr3();
@@ -221,7 +220,7 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
     VaPml4t = (uint64_t*)PaToVa(cr3.address_of_page_directory * PAGE_SIZE);
 
     if (!Va4kb || !Vapt || !VaPdt || !VaPdpt) {
-        DbgPrint(" Apply mm failed");
+        DbgPrint(" Apply mm failed \n");
         return false;
     }
 
@@ -241,7 +240,7 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
         memcpy(Vapt, pagetable.Entry.Pte - pteindex, PAGE_SIZE);
     }
     memcpy(Va4kb, replaceAlignAddr, PAGE_SIZE);
-    memcpy(Va4kb, pagetable.Entry.Pde - pdeindex, PAGE_SIZE);
+    memcpy(VaPdt, pagetable.Entry.Pde - pdeindex, PAGE_SIZE);
     memcpy(VaPdpt, pagetable.Entry.Pdpte - pdpteindex, PAGE_SIZE);
 
     auto pReplacePte = (pte_64*) &Vapt[pteindex]; // & 
