@@ -195,7 +195,13 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
     VaPdt = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
     VaPdpt = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
 
-    VaPml4t = cr3.address_of_page_directory * PAGE_SIZE;
+    VaPml4t = (uint64_t*)PaToVa(cr3.address_of_page_directory * PAGE_SIZE);
+
+    if (!Va4kb || !Vapt || !VaPdt || !VaPdpt) {
+        DbgPrint(" Apply mm failed");
+        return false;
+    }
+
     return false;
 }
 
