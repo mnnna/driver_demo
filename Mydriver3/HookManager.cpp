@@ -185,8 +185,17 @@ bool HookManager::SplitLargePage(pde_64 InPde, pde_64& OutPde)
 
 bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
 {
+    uint64_t *Va4kb, *Vapt, *VaPdt, *VaPdpt, *VaPml4t;
+    PHYSICAL_ADDRESS MaxAddrPA{ 0 }, LowAddrPa{ 0 };
+    MaxAddrPA.QuadPart = MAXULONG64;
+    LowAddrPa.QuadPart = 0;
 
+    Va4kb = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
+    Vapt = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
+    VaPdt = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
+    VaPdpt = (uint64_t*)MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, LowAddrPa, MaxAddrPA, LowAddrPa, MmCached);
 
+    VaPml4t = cr3.address_of_page_directory * PAGE_SIZE;
     return false;
 }
 
@@ -195,4 +204,12 @@ ULONG64 HookManager::VaToPa(void* va)
     PHYSICAL_ADDRESS pa; 
     pa = MmGetPhysicalAddress(va);
     return pa.QuadPart;
+}
+
+void* HookManager::PaToVa(ULONG64 pa)
+{
+    PHYSICAL_ADDRESS Pa{ 0 };
+    Pa.QuadPart = pa;
+    
+    return MmGetVirtualForPhysical(Pa);
 }
