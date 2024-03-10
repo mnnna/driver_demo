@@ -86,6 +86,10 @@ bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void*
     memcpy(curTrampLinePool + uBreakBytes, TrampLineCode, trampLineByteCount);  //return 语句
 
 
+    for (int i = 0; i < MAX_HOOK_COUNT; i++) {
+        if(mHookInfo[i].)
+    }
+
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
     REPROTECT_CONTEXT Content = { 0 };
 
@@ -149,7 +153,14 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
         }
         cr3 Cr3; 
         Cr3.flags = __readcr3();
-        ReplacePageTable(Cr3, alignAddrr, &NewPde);
+        bRet = ReplacePageTable(Cr3, alignAddrr, &NewPde);
+
+        if (bRet) {
+            DbgPrint("isolation successfully \n");
+        }
+        else {
+            DbgPrint("Failed isolation \n");
+        }
     }
 
     KeUnstackDetachProcess(&apc);
@@ -223,16 +234,17 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
     memcpy(VaPdpt, pagetable.Entry.Pdpte - pdpteindex, PAGE_SIZE);
 
     auto pReplacePte = (pte_64*) &Vapt[pteindex]; // & 
-    pReplacePte->page_frame_number = VaToPa(pReplacePte);
+    pReplacePte->page_frame_number = VaToPa(Va4kb) / PAGE_SIZE;
 
     auto pReplacePde = (pde_64*)&VaPdt[pdeindex]; // & 
-    pReplacePde->page_frame_number = VaToPa(pReplacePde);
+    pReplacePde->page_frame_number = VaToPa(Vapt) / PAGE_SIZE;
+    pReplacePde->large_page = 0;
 
     auto pReplacePdpte = (pdpte_64*)&VaPdpt[pdpteindex]; // & 
-    pReplacePdpte->page_frame_number = VaToPa(pReplacePdpte);
+    pReplacePdpte->page_frame_number = VaToPa(VaPdt) / PAGE_SIZE;
 
     auto pReplacePml4e = (pml4e_64*)&VaPml4t[pml4eindex]; // & 
-    pReplacePml4e->page_frame_number = VaToPa(pReplacePml4e);
+    pReplacePml4e->page_frame_number = VaToPa(VaPdpt) / PAGE_SIZE;
 
 
     return false;
