@@ -99,6 +99,8 @@ bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void*
     *(void**)&AbsoluteJmpCode[2] = hookAddr; // 数组地址转位一级指针：数组本身就是地址，& 取一次值就变成了耳机指针， 在 * 取一次值
     REPROTECT_CONTEXT Content = { 0 };
 
+    KAPC_STATE apc;
+    KeStackAttachProcess(process, &apc);
     if (!NT_SUCCESS(MmLockVaForWrite(startJmpAddr, PAGE_SIZE, &Content))) {
         return false;
     }
@@ -108,9 +110,13 @@ bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void*
     if (!NT_SUCCESS(MmUnlockVaForWrite(&Content))) {
         return false;
     }
+
+    KeUnstackDetachProcess(&apc);
+
+
     *originAddr = curTrampLinePool;
     mPoolUSED += (uBreakBytes + trampLineByteCount);
-
+    ObDereferenceObject(process);
     return true;
 }
 
@@ -252,7 +258,7 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
     pReplacePml4e->page_frame_number = VaToPa(VaPdpt) / PAGE_SIZE;
 
 
-    return false;
+    return true;
 }
 
 ULONG64 HookManager::VaToPa(void* va)
