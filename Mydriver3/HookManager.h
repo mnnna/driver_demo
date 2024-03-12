@@ -19,6 +19,7 @@ private:
 public:
 	ULONG64 VaToPa(void* va);
 	void* PaToVa(ULONG64 pa);
+	void offPGE();
 
 	UINT32 mHookCount = 0; 
 

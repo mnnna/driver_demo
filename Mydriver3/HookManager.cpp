@@ -12,6 +12,11 @@ HookManager* HookManager::mInstance;
 #pragma warning (disable : 6066)
 #pragma warning (disable : 4996)
 
+EXTERN_C VOID
+KeFlushEntireTb(
+    __in BOOLEAN Invalid,
+    __in BOOLEAN AllProcessors
+);
 
 bool HookManager::InstallInlinehook(HANDLE pid, __inout void** originAddr, void* hookAddr)
 {
@@ -176,6 +181,8 @@ bool HookManager::IsolationPageTable(PEPROCESS process, void* isolateioAddr)
 
     KeUnstackDetachProcess(&apc);
 
+
+
     return bRet;
 }
 
@@ -257,7 +264,8 @@ bool HookManager::ReplacePageTable(cr3 cr3, void* replaceAlignAddr, pde_64* pde)
     auto pReplacePml4e = (pml4e_64*)&VaPml4t[pml4eindex]; // & 
     pReplacePml4e->page_frame_number = VaToPa(VaPdpt) / PAGE_SIZE;
 
-
+    KeFlushEntireTb(true, false);
+    offPGE();
     return true;
 }
 
@@ -274,4 +282,25 @@ void* HookManager::PaToVa(ULONG64 pa)
     Pa.QuadPart = pa;
     
     return MmGetVirtualForPhysical(Pa);
+}
+
+ULONG_PTR KipiBroadcastWorker(
+    ULONG_PTR Argument
+)
+{
+    Argument;
+    KIRQL irql = KeRaiseIrqlToDpcLevel();    //提升进程特权级 , 防止切换 cpu 打断
+    _disable();  //屏蔽中断
+    ULONG64 cr4 = __readcr4();
+    cr4 &= 0xffffffffffffff7f; 
+    __writecr4(cr4);
+    _enable();
+
+    KeLowerIrql(irql);
+    return 0;  
+
+}
+void HookManager::offPGE()
+{
+    KeIpiGenericCall(KipiBroadcastWorker, NULL);
 }
