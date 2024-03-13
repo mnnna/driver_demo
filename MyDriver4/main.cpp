@@ -1,7 +1,7 @@
 #include<ntifs.h>
 #include<ntddk.h>
 
-
+#pragma warning(disable:4201)
 typedef struct _LDR_DATA_TABLE_ENTRY
 {
     struct _LIST_ENTRY InLoadOrderLinks;                                    //0x0
@@ -75,17 +75,40 @@ void UnloadDriver(PDRIVER_OBJECT DriverObject) {
 	UNREFERENCED_PARAMETER(DriverObject); 
 }
 
-UINT64 mGetModName(PDRIVER_OBJECT DriverObject) {
+UINT64 mGetModName(PDRIVER_OBJECT DriverObject, UNICODE_STRING moduleName) {
     PLDR_DATA_TABLE_ENTRY pldr = NULL;
+    PLIST_ENTRY pListEntry = NULL; 
+    PLIST_ENTRY pListCurrent = NULL;
+    PLDR_DATA_TABLE_ENTRY pCurrentMod = NULL;
 
     pldr = (PLDR_DATA_TABLE_ENTRY) DriverObject->DriverSection;
+    pListEntry = pldr->InLoadOrderLinks.Flink;
+    pListCurrent = pListEntry->Flink;
+     
+    while (pListEntry != pListCurrent) {
+        pCurrentMod = CONTAINING_RECORD(pListCurrent, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks); //结构体成员的指针中获取整个结构体的指针
 
+        if (pCurrentMod->BaseDllName.Buffer != nullptr) {
+
+            if (RtlCompareUnicodeString(&pCurrentMod->BaseDllName, &moduleName, true) == 0) {
+                DbgPrint("pCurrnetModule:%wZ, DllBase: %p \n", pCurrentMod->BaseDllName, pCurrentMod->DllBase);
+                return (UINT64)pCurrentMod->DllBase;
+            }
+
+
+        }
+        pListCurrent = pListCurrent->Flink;
+    }
+
+    return 0;
      
 };
 
 EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegisterPath){
+    RegisterPath;
 	DriverObject->DriverUnload = UnloadDriver;
-
+    UNICODE_STRING name = RTL_CONSTANT_STRING(L"ntoskrnl.exe");
+    mGetModName(DriverObject, name);
 
 	return STATUS_SUCCESS;
 }
