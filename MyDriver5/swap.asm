@@ -20,17 +20,18 @@ my_swapgs proc
 	call my_readmsr
 	mov [rbx], rax 
 
+
 	mov rcx, 0C0000101h;
 	call my_readmsr
 	mov [rsi], rax 
 
+	swapgs
+	
 	pop rsi
 	pop rbx
-
+	ret
 my_swapgs endp
 
 
+end
 
-
-
-end 

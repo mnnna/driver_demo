@@ -14,5 +14,8 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
 
 	my_swapgs(&old_kernel_gs_base, &old_gs_base);
 	my_swapgs(&new_kernel_gs_base, &new_gs_base);
-	return STATUS_SUCCESS;
+
+	DbgPrint("old: %p, old kernal:%p\n", old_gs_base, old_kernel_gs_base);
+	DbgPrint("old: %p, old kernal:%p\n", new_gs_base, new_kernel_gs_base);
+	return STATUS_SUCCESS; 
 }
