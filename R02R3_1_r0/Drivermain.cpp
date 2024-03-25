@@ -1,15 +1,17 @@
 #include<ntifs.h>
 #include<ntddk.h>
 
-NTSTATUS DriverUnload(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
-	UNREFERENCED_PARAMETER(DeviceObject);
-	//返回给3ring
-	pIrp->IoStatus.Information = 0;
-	pIrp->IoStatus.Status = STATUS_SUCCESS;
-	DbgPrint("DispatchCreate！\n");
-	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
-	return STATUS_SUCCESS;
+void DriverUnload(PDRIVER_OBJECT DriverObject) {
 
+	if (DriverObject->DeviceObject) {
+		IoDeleteDevice(DriverObject->DeviceObject);
+		UNICODE_STRING symbolLinkName = RTL_CONSTANT_STRING(L"\\??\\DemoInject");
+		NTSTATUS status = IoDeleteSymbolicLink(&symbolLinkName);
+		if (!NT_SUCCESS(status)) {
+			DbgPrint("符号删除成功！\n");
+		}
+	}
+	DbgPrint("驱动卸载成功！\n");
 }
 
 NTSTATUS DispatchClose(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
@@ -49,7 +51,7 @@ NTSTATUS DispatchRead(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 		IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 		return STATUS_SUCCESS;
 	}
-	RtlCopyMemory(sysBuff, buff, sizeof(buff))
+	RtlCopyMemory(sysBuff, buff, sizeof(buff));
 
 }
 
