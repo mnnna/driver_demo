@@ -19,8 +19,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="R02R3_1_r0.inf">
-      <Filter>Driver Files</Filter>
-    </Inf>
+    <ClCompile Include="Drivermain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
