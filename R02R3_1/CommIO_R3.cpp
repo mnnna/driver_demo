@@ -14,24 +14,24 @@ void main(){
 		printf("Create file faild ! \n ");
 	}
 
-	//char outBuff[MAXBYTE] = { 0 };
-	//char inBuff[MAXBYTE] = "Form R3";
+	char outBuff[MAXBYTE] = { 0 };
+	char inBuff[MAXBYTE] = "Hello world from R3";
 
-	//bRet = ReadFile(hDevice, outBuff, sizeof(outBuff), NULL, NULL);
-	//if (!bRet) {
-	//	printf("Read file failed\n");
-	//}
-	//else {
-	//	printf("Read file outBuff: %s \n", outBuff);
-	//}
-
-	/*bRet = WriteFile(hDevice, inBuff, sizeof(inBuff), NULL, NULL);
+	bRet = ReadFile(hDevice, outBuff, sizeof(outBuff), NULL, NULL);
+	if (!bRet) {
+		printf("Read file failed\n");
+	}
+	else {
+		printf("Read file outBuff: %s \n", outBuff);
+	}
+	 
+	bRet = WriteFile(hDevice, inBuff, sizeof(inBuff), NULL, NULL);
 	if (!bRet) {
 		printf("write file failed\n");
 	}
 	else {
 		printf("write file outBuff: %s \n", inBuff);
-	}*/
+	}
 
 
 	system("pause");
