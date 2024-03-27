@@ -61,19 +61,18 @@ NTSTATUS DispatchRead(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 NTSTATUS DispatchWrite(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 	UNREFERENCED_PARAMETER(DeviceObject);
 	 
-	auto stack = IoGetCurrentIrpStackLocation(pIrp);
-	stack->Parameters.Read.Length;
-
-	PVOID sysBuff = pIrp->AssociatedIrp.SystemBuffer;
-	if (!MmIsAddressValid(sysBuff) && stack > 0) {
-		DbgPrint("sysBuff is null！\n");
+	
+	PVOID mdl_buff = MmGetMdlVirtualAddress(pIrp->MdlAddress);
+	ULONG len = MmGetMdlByteCount(pIrp->MdlAddress); 
+	if (!MmIsAddressValid(mdl_buff)) {
+		DbgPrint("mdl_buff is null！\n");
 		pIrp->IoStatus.Information = 0;
 		pIrp->IoStatus.Status = STATUS_SUCCESS;
 		IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 		return STATUS_SUCCESS;
 	}
-	DbgPrint("sysBuff is %p！\n", sysBuff);
-	pIrp->IoStatus.Information = sizeof(stack);
+	DbgPrint("mdl_buff is %s！\n", mdl_buff);
+	pIrp->IoStatus.Information = len;
 	pIrp->IoStatus.Status = STATUS_SUCCESS;
 	return STATUS_SUCCESS;
 
@@ -97,7 +96,7 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
 		return status ;
 	}
 	
-	PDeviceObj->Flags |= DO_BUFFERED_IO ; // 将 PDeviceObj->Flags 设置为 0，意味着清除所有的标志位，将设备对象恢复到默认状态。
+	PDeviceObj->Flags |= DO_DIRECT_IO ; // 将 PDeviceObj->Flags 设置为 0，意味着清除所有的标志位，将设备对象恢复到默认状态。
 
 	//创建 R0 与 R3 的符号链接 
 	status = IoCreateSymbolicLink(&symbolLINKName, &DeviceName);

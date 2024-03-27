@@ -1,4 +1,4 @@
-#include<Windows.h>
+ #include<Windows.h>
 #include <iostream>
 #include <winioctl.h>
 
@@ -17,14 +17,7 @@ void main(){
 	char outBuff[MAXBYTE] = { 0 };
 	char inBuff[MAXBYTE] = "Hello world from R3";
 
-	bRet = ReadFile(hDevice, outBuff, sizeof(outBuff), NULL, NULL);
-	if (!bRet) {
-		printf("Read file failed\n");
-	}
-	else {
-		printf("Read file outBuff: %s \n", outBuff);
-	}
-	 
+
 	bRet = WriteFile(hDevice, inBuff, sizeof(inBuff), NULL, NULL);
 	if (!bRet) {
 		printf("write file failed\n");
