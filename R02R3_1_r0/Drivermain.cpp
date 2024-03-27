@@ -62,7 +62,7 @@ NTSTATUS DispatchRead(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 NTSTATUS DispatchCTL(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 	UNREFERENCED_PARAMETER(DeviceObject);
 
-	char buff[255] = "hello world form r0 \n";
+	char buff[255] = "hello world form r0";
 	PVOID sysBuff = pIrp->AssociatedIrp.SystemBuffer;
 	auto stack = IoGetCurrentIrpStackLocation(pIrp);
 	int length = stack->Parameters.Read.Length;
@@ -82,7 +82,7 @@ NTSTATUS DispatchCTL(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 		default:
 			break;
 	}
-	pIrp->IoStatus.Information = sizeof(length);
+	pIrp->IoStatus.Information = length;
 	pIrp->IoStatus.Status = STATUS_SUCCESS;
 	IoCompleteRequest(pIrp, IO_NO_INCREMENT); // !!! 
 	return STATUS_SUCCESS;
@@ -153,9 +153,7 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
 		return status;
 	}
 	//例程
-	DbgPrint("驱动加载成功！\n");
 	DriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchCreate;
-	DbgPrint("驱动加载成功！\n");
 	DriverObject->MajorFunction[IRP_MJ_CLOSE] = DispatchClose;
 	//DriverObject->MajorFunction[IRP_MJ_READ] = DispatchRead;
 	//DriverObject->MajorFunction[IRP_MJ_WRITE] = DispatchWrite;
