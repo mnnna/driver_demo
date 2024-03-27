@@ -72,7 +72,7 @@ NTSTATUS DispatchWrite(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 		IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 		return STATUS_SUCCESS;
 	}
-	DbgPrint("sysBuff is %s£¡\n", sysBuff);
+	DbgPrint("sysBuff is %p£¡\n", sysBuff);
 	pIrp->IoStatus.Information = sizeof(stack);
 	pIrp->IoStatus.Status = STATUS_SUCCESS;
 	return STATUS_SUCCESS;
