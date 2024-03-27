@@ -1,6 +1,7 @@
 #include<ntifs.h>
 #include<ntddk.h>
-
+#define wtire CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED,FILE_ANY_ACCESS )
+#define apc CTL_CODE(FILE_DEVICE_UNKNOWN, 0x802, METHOD_BUFFERED,FILE_ANY_ACCESS )
 void DriverUnload(PDRIVER_OBJECT DriverObject) {
 
 	if (DriverObject->DeviceObject) {
@@ -58,6 +59,37 @@ NTSTATUS DispatchRead(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 
  }
 
+NTSTATUS DispatchCTL(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
+	UNREFERENCED_PARAMETER(DeviceObject);
+
+	char buff[255] = "hello world form r0 \n";
+	PVOID sysBuff = pIrp->AssociatedIrp.SystemBuffer;
+	auto stack = IoGetCurrentIrpStackLocation(pIrp);
+	int length = stack->Parameters.Read.Length;
+	switch (stack->Parameters.DeviceIoControl.IoControlCode) {
+		case wtire: {
+			if (!MmIsAddressValid(sysBuff)) {
+				DbgPrint("sysBuff is null！\n");
+				pIrp->IoStatus.Information = 0;
+				pIrp->IoStatus.Status = STATUS_SUCCESS;
+				IoCompleteRequest(pIrp, IO_NO_INCREMENT);
+				return STATUS_SUCCESS;
+			}
+			DbgPrint("sysBuff is %s！\n", sysBuff);
+			RtlCopyMemory(sysBuff, buff, sizeof(buff));
+			break;
+		}
+		default:
+			break;
+	}
+	pIrp->IoStatus.Information = sizeof(length);
+	pIrp->IoStatus.Status = STATUS_SUCCESS;
+	IoCompleteRequest(pIrp, IO_NO_INCREMENT); // !!! 
+	return STATUS_SUCCESS;
+	
+
+}
+
 NTSTATUS DispatchWrite(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 	/*UNREFERENCED_PARAMETER(DeviceObject);
 	 
@@ -114,7 +146,7 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
 	}
 	
 	//PDeviceObj->Flags |= DO_BUFFERED_IO ; // 将 PDeviceObj->Flags 设置为 0，意味着清除所有的标志位，将设备对象恢复到默认状态。
-	PDeviceObj->Flags = 0;
+	//PDeviceObj->Flags = 0; not unnecessary 
 	//创建 R0 与 R3 的符号链接 
 	status = IoCreateSymbolicLink(&symbolLINKName, &DeviceName);
 	if (!NT_SUCCESS(status)) {
@@ -125,8 +157,9 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
 	DriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchCreate;
 	DbgPrint("驱动加载成功！\n");
 	DriverObject->MajorFunction[IRP_MJ_CLOSE] = DispatchClose;
-	DriverObject->MajorFunction[IRP_MJ_READ] = DispatchRead;
-	DriverObject->MajorFunction[IRP_MJ_WRITE] = DispatchWrite;
+	//DriverObject->MajorFunction[IRP_MJ_READ] = DispatchRead;
+	//DriverObject->MajorFunction[IRP_MJ_WRITE] = DispatchWrite;
+	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchCTL;
 	DbgPrint("驱动加载成功！\n");
 	return STATUS_SUCCESS;
 }
