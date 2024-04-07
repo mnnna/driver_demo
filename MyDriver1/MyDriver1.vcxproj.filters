@@ -25,6 +25,18 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\CProcessList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInjectDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.h">
@@ -42,5 +54,36 @@
     <ClInclude Include="struct.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\CProcessList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInjectDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInject.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\res\HackInject.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

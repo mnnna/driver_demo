@@ -93,14 +93,31 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\CProcessList.cpp" />
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInject.cpp" />
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInjectDlg.cpp" />
+    <ClCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\pch.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\CProcessList.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\framework.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInject.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInjectDlg.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\pch.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\resource.h" />
+    <ClInclude Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\targetver.h" />
     <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.h" />
     <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32.hpp" />
     <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_compact.h" />
     <ClInclude Include="..\..\..\驱动\02.课件资料与源码\第1章-保护模式与多级页表（过PGHook）\源码\ia32\ia32_defines_only.h" />
     <ClInclude Include="struct.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\HackInject.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\驱动\02.课件资料与源码\第2章-系统调用（过检测驱动注入器方案一）\源码\DrvInject\DrvInject\HackInject\res\HackInject.rc2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,6 +21,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "R02R3_2_MDL", "R02R3_2_MDL\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "R02R3_2_r0_MDL", "R02R3_2_r0_MDL\R02R3_2_r0_MDL.vcxproj", "{7083F9FA-A2BB-4359-90F7-D513D5396EF6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HackInject", "HackInject\HackInject.vcxproj", "{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -181,6 +183,18 @@ Global
 		{7083F9FA-A2BB-4359-90F7-D513D5396EF6}.Release|x86.ActiveCfg = Release|x64
 		{7083F9FA-A2BB-4359-90F7-D513D5396EF6}.Release|x86.Build.0 = Release|x64
 		{7083F9FA-A2BB-4359-90F7-D513D5396EF6}.Release|x86.Deploy.0 = Release|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Debug|ARM64.ActiveCfg = Debug|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Debug|ARM64.Build.0 = Debug|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Debug|x64.ActiveCfg = Debug|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Debug|x64.Build.0 = Debug|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Debug|x86.ActiveCfg = Debug|Win32
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Debug|x86.Build.0 = Debug|Win32
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Release|ARM64.ActiveCfg = Release|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Release|ARM64.Build.0 = Release|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Release|x64.ActiveCfg = Release|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Release|x64.Build.0 = Release|x64
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Release|x86.ActiveCfg = Release|Win32
+		{0DC9DE35-62B8-43E5-85BF-F3A75D95FC7E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
