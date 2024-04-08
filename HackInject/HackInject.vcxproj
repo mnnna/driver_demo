@@ -187,6 +187,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="HackInject.h" />
     <ClInclude Include="HackInjectDlg.h" />
+    <ClInclude Include="LoadDriver.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="CProcessList.cpp" />
     <ClCompile Include="HackInject.cpp" />
     <ClCompile Include="HackInjectDlg.cpp" />
+    <ClCompile Include="LoadDriver.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

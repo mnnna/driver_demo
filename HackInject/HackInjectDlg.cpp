@@ -7,12 +7,13 @@
 #include "HackInject.h"
 #include "HackInjectDlg.h"
 #include "afxdialogex.h"
+#include"LoadDriver.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 #define WM_PROCESS (WM_USER+1)
-
+#define DRIVERNAME "DriverInject"
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -113,7 +114,7 @@ BOOL CHackInjectDlg::OnInitDialog()
 
 	SetWindowText(L"驱动注入器 - mnnna");
 
-
+	// LoadDriver(DRIVERNAME, "DriverInject.sys");
 
 
 

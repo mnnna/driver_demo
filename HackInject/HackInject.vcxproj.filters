@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="LoadDriver">
+      <UniqueIdentifier>{c5185013-8a40-4774-86e1-00c1711738ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HackInject.h">
@@ -36,6 +39,9 @@
     <ClInclude Include="CProcessList.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="LoadDriver.h">
+      <Filter>LoadDriver</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HackInject.cpp">
@@ -49,6 +55,9 @@
     </ClCompile>
     <ClCompile Include="CProcessList.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadDriver.cpp">
+      <Filter>LoadDriver</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

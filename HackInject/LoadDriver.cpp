@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "LoadDriver.h"
 
 BOOL LoadDriver(const char* lpszDrivername, const char* sysFileName)
@@ -49,7 +50,7 @@ BOOL LoadDriver(const char* lpszDrivername, const char* sysFileName)
             return TRUE;
         }
     }
-    BOOL bREt = TRUE;
+    bREt = TRUE;
 
 Clean:
     if (hServiceDDK) CloseServiceHandle(hServiceDDK);
@@ -63,6 +64,7 @@ BOOL UnloadDriver(const char* lpszDriverName)
 {
     BOOL bREt = TRUE;
     SC_HANDLE hService = NULL;
+    SERVICE_STATUS svstat;
     
     //打开服务控制管理器数据库（SCM）
     hService = OpenSCManagerA(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -75,31 +77,27 @@ BOOL UnloadDriver(const char* lpszDriverName)
 
     SC_HANDLE hServiceDDK = NULL;
     
+    hServiceDDK = OpenServiceA(hService, lpszDriverName, SERVICE_ALL_ACCESS); // 停止一个服务器 需要打开
 
     if (hServiceDDK == NULL) {
-        if (GetLastError() == ERROR_SERVICE_EXISTS) {
-            hServiceDDK = OpenServiceA(hService, lpszDrivername, SERVICE_ALL_ACCESS);
-
-        }
-        else {
-            OutputDebugStringA("Start SCM failed \n");
-            bREt = FALSE;
-            goto  Clean;
-        }
+        OutputDebugStringA("open SCM failed \n");
+        bREt = FALSE;
+        goto  Clean;
     }
 
-    bREt = StartServiceA(hServiceDDK, NULL, NULL);
-    if (!bREt) {
-        if (GetLastError() != ERROR_IO_PENDING && GetLastError() != ERROR_SERVICE_ALREADY_RUNNING) {
-            OutputDebugStringA("start service failed \n");
-            bREt = FALSE;
-            goto  Clean;
-        }
-        else {
-            return TRUE;
-        }
+    if (!ControlService(hServiceDDK, SERVICE_CONTROL_STOP, &svstat)) {
+        OutputDebugStringA("stop SCM failed \n");
+        bREt = FALSE;
+        goto  Clean;
     }
-    BOOL bREt = TRUE;
+    
+    if (!DeleteService(hServiceDDK)) {
+        OutputDebugStringA("Delete SCM failed \n");
+        bREt = FALSE;
+        goto  Clean;
+    }
+
+    bREt = TRUE;
 
 Clean:
     if (hServiceDDK) CloseServiceHandle(hServiceDDK);
