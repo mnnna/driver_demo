@@ -5,6 +5,7 @@ BOOL LoadDriver(const char* lpszDrivername, const char* sysFileName)
 {
     BOOL bREt = TRUE;
     SC_HANDLE hService = NULL; 
+    SC_HANDLE hServiceDDK = NULL;
     char szDriverFilePAth[256] = { 0 };
     GetFullPathNameA(sysFileName, sizeof(szDriverFilePAth), szDriverFilePAth, NULL); 
     //打开服务控制管理器数据库（SCM）
@@ -16,7 +17,7 @@ BOOL LoadDriver(const char* lpszDrivername, const char* sysFileName)
     }
 
 
-    SC_HANDLE hServiceDDK = NULL;
+    
     hServiceDDK = CreateServiceA(hService,
         lpszDrivername,
         lpszDrivername,
@@ -65,7 +66,7 @@ BOOL UnloadDriver(const char* lpszDriverName)
     BOOL bREt = TRUE;
     SC_HANDLE hService = NULL;
     SERVICE_STATUS svstat;
-    
+    SC_HANDLE hServiceDDK = NULL;
     //打开服务控制管理器数据库（SCM）
     hService = OpenSCManagerA(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (hService == NULL) {
@@ -75,7 +76,7 @@ BOOL UnloadDriver(const char* lpszDriverName)
     }
 
 
-    SC_HANDLE hServiceDDK = NULL;
+
     
     hServiceDDK = OpenServiceA(hService, lpszDriverName, SERVICE_ALL_ACCESS); // 停止一个服务器 需要打开
 

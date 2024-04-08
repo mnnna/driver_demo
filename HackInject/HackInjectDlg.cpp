@@ -13,7 +13,7 @@
 #define new DEBUG_NEW
 #endif
 #define WM_PROCESS (WM_USER+1)
-#define DRIVERNAME "DriverInject"
+#define DRIVERNAME "DrvInject"
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -114,9 +114,12 @@ BOOL CHackInjectDlg::OnInitDialog()
 
 	SetWindowText(L"驱动注入器 - mnnna");
 
-	// LoadDriver(DRIVERNAME, "DriverInject.sys");
+	if (!LoadDriver(DRIVERNAME, "DrvInject.sys")) {
+		GetDlgItem(IDC_STATIC_TIP)->SetWindowTextW(L"驱动加载失败");
+		return FALSE;
+	}
 
-
+	GetDlgItem(IDC_STATIC_TIP)->SetWindowTextW(L"驱动加载成功");
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -259,6 +262,9 @@ void CHackInjectDlg::OnClose()
 	if (MessageBox(L"确定要退出程序并卸载驱动吗？", L"退出提示", MB_ICONINFORMATION | MB_YESNO) == IDNO)
 	{
 		return; //注意无返回值
+	}
+	if (!UnloadDriver(DRIVERNAME)) {
+		MessageBox(L"卸载失败", L"退出", MB_ICONEXCLAMATION | MB_YESNO);
 	}
 	CDialogEx::OnClose();
 }
