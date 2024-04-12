@@ -17,10 +17,21 @@
       <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
       <Extensions>inf;inv;inx;mof;mc;</Extensions>
     </Filter>
+    <Filter Include="CommIO">
+      <UniqueIdentifier>{4ea7b6ad-7a69-4952-9600-05ade61aeb49}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrvMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CommIO.cpp">
+      <Filter>CommIO</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommIO.h">
+      <Filter>CommIO</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

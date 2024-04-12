@@ -90,7 +90,11 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommIO.cpp" />
     <ClCompile Include="DrvMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommIO.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

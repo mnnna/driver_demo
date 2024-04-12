@@ -1,5 +1,7 @@
 #include"CommIO.h"
 
+
+
 NTSTATUS DispatchCreate(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 	UNREFERENCED_PARAMETER(DeviceObject);
 	//·µ»Ø¸ø3ring
@@ -30,20 +32,36 @@ NTSTATUS DispatchClose(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 
 NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 	UNREFERENCED_PARAMETER(DeviceObject);
-
-	char buff[255] = "hello world r0";
-
-	PVOID sysBuff = pIrp->AssociatedIrp.SystemBuffer;
-
+	ULONG length = 0;
+	NTSTATUS status = STATUS_SUCCESS;
 	auto stack = IoGetCurrentIrpStackLocation(pIrp);
-	int length = stack->Parameters.Read.Length;
-	switch (stack->Parameters.DeviceIoControl.IoControlCode)
-	{
-	
-	pIrp->IoStatus.Information = 0;
-	pIrp->IoStatus.Status = STATUS_SUCCESS;
 
-	DbgPrint("DispatchClose£¡\n");
+	switch (stack->Parameters.DeviceIoControl.IoControlCode) 
+	{
+	case CALLBACKINJECT: {
+		
+		PINIT_DATA info = (PINIT_DATA)pIrp->AssociatedIrp.SystemBuffer;
+		g_fnLoadLibrary = info->fnLoadLibrary; 
+		g_fnGetProcAddress = info->fnGetProcAddress;
+		g_fnRtlAddFunction = info->fnRtlAddFunction;
+
+		if (g_fnLoadLibrary == 0 || g_fnGetProcAddress == 0 || g_fnGetProcAddress == 0) {
+			status = STATUS_UNSUCCESSFUL;
+			length = 0;
+		}
+
+		length = sizeof(PINIT_DATA);
+		break; 
+	}
+	default:
+		break;
+	}
+
+	
+	pIrp->IoStatus.Information = length;
+	pIrp->IoStatus.Status = status;
+
+
 
 	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 

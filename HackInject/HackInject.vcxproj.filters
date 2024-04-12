@@ -16,6 +16,9 @@
     <Filter Include="LoadDriver">
       <UniqueIdentifier>{c5185013-8a40-4774-86e1-00c1711738ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CommIO">
+      <UniqueIdentifier>{d60d6145-aa6c-4f11-9049-b25e0ea761d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HackInject.h">
@@ -42,6 +45,9 @@
     <ClInclude Include="LoadDriver.h">
       <Filter>LoadDriver</Filter>
     </ClInclude>
+    <ClInclude Include="CommIO.h">
+      <Filter>CommIO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HackInject.cpp">
@@ -58,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="LoadDriver.cpp">
       <Filter>LoadDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="CommIO.cpp">
+      <Filter>CommIO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

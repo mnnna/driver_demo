@@ -5,7 +5,7 @@
 void DriverUnload(PDRIVER_OBJECT DriverObject){
 	if (DriverObject->DeviceObject) {
 		IoDeleteDevice(DriverObject->DeviceObject);
-		UNICODE_STRING symbolLinkName = RTL_CONSTANT_STRING(L"\\??\\DemoInject");
+		UNICODE_STRING symbolLinkName = RTL_CONSTANT_STRING(SYBOLNAME);
 		NTSTATUS status = IoDeleteSymbolicLink(&symbolLinkName);
 		if (!NT_SUCCESS(status)) {
 			DbgPrint("·ûºÅÉ¾³ý³É¹¦£¡\n");

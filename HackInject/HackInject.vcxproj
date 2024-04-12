@@ -183,6 +183,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CommIO.h" />
     <ClInclude Include="CProcessList.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="HackInject.h" />
@@ -193,6 +194,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommIO.cpp" />
     <ClCompile Include="CProcessList.cpp" />
     <ClCompile Include="HackInject.cpp" />
     <ClCompile Include="HackInjectDlg.cpp" />

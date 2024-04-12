@@ -8,6 +8,7 @@
 #include "HackInjectDlg.h"
 #include "afxdialogex.h"
 #include"LoadDriver.h"
+#include "CommIO.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -119,6 +120,12 @@ BOOL CHackInjectDlg::OnInitDialog()
 		return FALSE;
 	}
 
+	if (!InitDriver()) {
+		GetDlgItem(IDC_STATIC_TIP)->SetWindowTextW(L"驱动启动失败");
+		return FALSE;
+	}
+
+
 	GetDlgItem(IDC_STATIC_TIP)->SetWindowTextW(L"驱动加载成功");
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -225,8 +232,9 @@ void CHackInjectDlg::OnBnClickedInject()
 
 	if (((CButton*)GetDlgItem(IDC_RADIO1))->GetCheck())
 	{
-
-	
+		if (CallBackInject(PID ,DllPath)) {
+			GetDlgItem(IDC_STATIC_TIP)->SetWindowTextW(L"注入成功! ");
+		}
 	}
 
 }
@@ -263,6 +271,7 @@ void CHackInjectDlg::OnClose()
 	{
 		return; //注意无返回值
 	}
+	StopDriver();
 	if (!UnloadDriver(DRIVERNAME)) {
 		MessageBox(L"卸载失败", L"退出", MB_ICONEXCLAMATION | MB_YESNO);
 	}
