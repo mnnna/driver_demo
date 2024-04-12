@@ -2,6 +2,7 @@
 #include <ntddk.h>
 #include "CommIO.h"
 
+
 void DriverUnload(PDRIVER_OBJECT DriverObject){
 	if (DriverObject->DeviceObject) {
 		IoDeleteDevice(DriverObject->DeviceObject);

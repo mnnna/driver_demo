@@ -20,6 +20,9 @@
     <Filter Include="CommIO">
       <UniqueIdentifier>{4ea7b6ad-7a69-4952-9600-05ade61aeb49}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CallBackInject">
+      <UniqueIdentifier>{b3639613-f4dc-4250-9012-c5596a5e3851}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrvMain.cpp">
@@ -32,6 +35,9 @@
   <ItemGroup>
     <ClInclude Include="CommIO.h">
       <Filter>CommIO</Filter>
+    </ClInclude>
+    <ClInclude Include="InstrCallBack.h">
+      <Filter>CallBackInject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

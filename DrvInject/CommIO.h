@@ -1,6 +1,6 @@
 #pragma once
-#include <ntddk.h>
 #include <ntifs.h>
+#include <ntddk.h>
 
 #define  DEVICENAME L"\\Device\\DemoInject"
 #define  SYBOLNAME L"\\??\\DemoInject"
@@ -17,4 +17,4 @@ typedef struct _INT_DATA {
 	UINT64 fnLoadLibrary;
 	UINT64 fnGetProcAddress;
 	UINT64 fnRtlAddFunction;
-}INIT_DATA, PINIT_DATA;
+}INIT_DATA, * PINIT_DATA;

@@ -15,6 +15,6 @@ typedef struct _INT_DATA {
 	UINT64 fnLoadLibrary;
 	UINT64 fnGetProcAddress;
 	UINT64 fnRtlAddFunction;
-}INT_DATA, PINT_DATA;
+}INIT_DATA,* PINIT_DATA;
 
 BOOL CallBackInject(DWORD PID, wchar_t* szDllName);
