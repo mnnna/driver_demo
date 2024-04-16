@@ -23,6 +23,9 @@
     <Filter Include="CallBackInject">
       <UniqueIdentifier>{b3639613-f4dc-4250-9012-c5596a5e3851}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logger">
+      <UniqueIdentifier>{4917acf1-82c5-45fb-9d0c-8bfc965a7d61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrvMain.cpp">
@@ -31,6 +34,12 @@
     <ClCompile Include="CommIO.cpp">
       <Filter>CommIO</Filter>
     </ClCompile>
+    <ClCompile Include="InstrCallBack.cpp">
+      <Filter>CallBackInject</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Logger</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommIO.h">
@@ -38,6 +47,9 @@
     </ClInclude>
     <ClInclude Include="InstrCallBack.h">
       <Filter>CallBackInject</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Logger</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -44,21 +44,24 @@ NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 		g_fnLoadLibrary = info->fnLoadLibrary; 
 		g_fnGetProcAddress = info->fnGetProcAddress;
 		g_fnRtlAddFunction = info->fnRtlAddFunction;
-		g_dwPid = info->dwPid;
-		g_zDllName = info->szDllName;
 
 		if (g_fnLoadLibrary == 0 || g_fnGetProcAddress == 0 || g_fnGetProcAddress == 0) {
 			status = STATUS_UNSUCCESSFUL;
 			length = 0;
 		}
+	
+		wchar_t DllR0Name[260] = { 0 }; // whar_t unicode ¿í×Ö·û 
+		wcscpy(DllR0Name, L"\\??\\");
+		wcscat(DllR0Name, info->szDllName);
 
+		length = sizeof(PINIT_DATA);
 		break; 
 	}
 	default:
 		break;
 	}
 
-		DbgBreakPoint();
+		//DbgBreakPoint();
 	
 	pIrp->IoStatus.Information = length;
 	pIrp->IoStatus.Status = status;

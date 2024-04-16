@@ -92,10 +92,13 @@
   <ItemGroup>
     <ClCompile Include="CommIO.cpp" />
     <ClCompile Include="DrvMain.cpp" />
+    <ClCompile Include="InstrCallBack.cpp" />
+    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommIO.h" />
     <ClInclude Include="InstrCallBack.h" />
+    <ClInclude Include="Logger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
