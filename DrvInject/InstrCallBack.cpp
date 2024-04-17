@@ -1,6 +1,6 @@
 #include "InstrCallBack.h"
 #include "Logger.h"
-
+#include"ShellCode.h"
 //要注入的 DLL 读到内存中
 
 
@@ -21,9 +21,33 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 
 	KeStackAttachProcess(Process, &Apc); //附加
+	// 读到内存-----
 	PUCHAR pDllMem =  install_callback_get_dll_memory(us_dll_path);
+	// 读到内存-----
 
 	return NTSTATUS();
+}
+
+NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID p_manual_data) {
+	NTSTATUS status = STATUS_UNSUCCESSFUL;
+
+	IMAGE_NT_HEADERS* pNTHeader = nullptr;
+	IMAGE_FILE_HEADER* pFileHeader = nullptr;
+
+	if (!reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_magic !=  0x5A4D){  // 5A4D
+		status = STATUS_INVALID_PARAMETER;
+		Log("Is not a valid PE", true, status);
+		return status;
+	} 
+
+	pNTHeader = (IMAGE_NT_HEADERS*)((ULONG_PTR)p_dll_memory + reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_lfanew);
+	pFileHeader = &pNTHeader->FileHeader; // &?
+
+	if (pFileHeader->Machine != IMAGE_FILE_MACHINE_AMD64) {  //x64
+		status = STATUS_NOT_SUPPORTED;
+		Log("Is not a x64 PE", true, status);
+		return status;
+	}
 }
 
 PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
@@ -69,6 +93,8 @@ PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 	
 
 	ZwClose(hFile);
+
+
 
 	return pDllMem;
 }
