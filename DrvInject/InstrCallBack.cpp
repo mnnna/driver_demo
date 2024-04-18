@@ -5,7 +5,7 @@
 
 
 NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
-{
+{	
 	NTSTATUS status = STATUS_SUCCESS;
 	PEPROCESS Process = { 0 };
 	KAPC_STATE Apc = { 0 };
@@ -30,6 +30,9 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID p_manual_data) {
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
+	PEPROCESS Process = { 0 };
+	char* pStartMapAdd = 0;
+	size_t AllocSize = 0;
 
 	IMAGE_NT_HEADERS* pNTHeader = nullptr;
 	IMAGE_FILE_HEADER* pFileHeader = nullptr;
@@ -48,6 +51,20 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		Log("Is not a x64 PE", true, status);
 		return status;
 	}
+
+	status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&pStartMapAdd, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);//申请3环的游戏的内存 （r3 的内存）
+
+
+	if (pFileHeader->Machine != IMAGE_FILE_MACHINE_AMD64) {  //x64
+		Log("FAILED to get aollcate mem", true, status);
+		return status;
+	}
+	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize)); 
+
+	Process = (PEPROCESS)IoGetCurrentProcess();
+
+	MmCopyVirtualMemory(Process, p_dll_memory, Process, pStartMapAdd, PAGE_SIZE, );
+
 }
 
 PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)

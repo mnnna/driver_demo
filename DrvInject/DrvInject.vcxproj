@@ -99,6 +99,7 @@
     <ClInclude Include="CommIO.h" />
     <ClInclude Include="InstrCallBack.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="ShellCode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

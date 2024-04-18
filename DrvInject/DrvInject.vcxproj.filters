@@ -26,6 +26,9 @@
     <Filter Include="Logger">
       <UniqueIdentifier>{4917acf1-82c5-45fb-9d0c-8bfc965a7d61}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ShellCode">
+      <UniqueIdentifier>{6ac09d97-f8cb-417f-8d86-8adb6d257e47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrvMain.cpp">
@@ -50,6 +53,9 @@
     </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="ShellCode.h">
+      <Filter>ShellCode</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
