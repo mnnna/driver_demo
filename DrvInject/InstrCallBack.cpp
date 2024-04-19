@@ -72,6 +72,17 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		return status;
 	}
 
+	IMAGE_SECTION_HEADER* pSectionHeader =  IMAGE_FIRST_SECTION(pNTHeader); // ÄÃ½ÚÇøÍ·
+	for (int i = 0; i < pFileHeader->NumberOfSections; i++, pSectionHeader++) {
+		if (pSectionHeader->SizeOfRawData) {
+			status = MmCopyVirtualMemory(Process, p_dll_memory+ pSectionHeader->PointerToRawData , Process, pStartMapAdd + pSectionHeader->VirtualAddress , pSectionHeader->SizeOfRawData, KernelMode, &RetSize); 
+		if (!NT_SUCCESS(status)) {  //x64
+			Log("FAILED to load section", true, status);
+			return status;
+		}
+		}
+	}
+
 }
 
 PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
