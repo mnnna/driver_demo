@@ -1,7 +1,79 @@
 #include "InstrCallBack.h"
 #include "Logger.h"
 #include"ShellCode.h"
-//要注入的 DLL 读到内存中
+//要注入的 DLL读到内存中
+#pragma pack(push)    //保存当前内存对齐状态
+#pragma pack(1) //设置内存对齐值为1 相当于没有内存对齐的概念
+struct shellcode_t {
+private:
+	char padding[43];//43
+public:
+	uintptr_t manual_data;//8 重定位结构体
+private:
+	char pdding[47];
+public:
+	uintptr_t rip;
+	uintptr_t shellcode;
+};
+
+//shell_code
+char g_instcall_shellcode[] =
+{
+	0x50,//push rax
+	0x51, //push  rcx   
+	0x52, //push  rdx
+	0x53, //push  rbx												//
+	0x55, 															//
+	0x56, 															//
+	0x57, 															//
+	0x41, 0x50, 													//
+	0x41, 0x51, 													//
+	0x41, 0x52, 													//
+	0x41, 0x53, 													//
+	0x41, 0x54, 													//
+	0x41, 0x55, 													//
+	0x41, 0x56, 													//
+	0x41, 0x57, 													//
+	//上面都是保存寄存器
+	// sub rsp,0x20
+	//把rsp保存过去
+	0x48,0x89,0x25,0x4c,0x00,0x00,0x00,//将rsp保存
+	0x48,0x83,0xec,0x38,
+	0x48,0x81,0xe4,0xf0,0xff,0xff,0xff, //强行对齐
+
+	//00000217F568001 | 48:83EC 20 | sub rsp,0x20 |
+	//00000217F568001 | 48 : 83C4 20 | add rsp,0x20 |
+	//Call ShellCode 进行重定位
+
+	0x48, 0xB9, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,  //mov rcx,重定位数据
+
+	0xFF, 0x15, 0x29, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,//call 地址
+
+	//恢复寄存器
+	0x48,0x8b,0x25,0x22,0x00,0x00,0x00,//将原来的rsp恢复
+	//add rsp,0x20
+	//pop 寄存器
+	0x41, 0x5F,
+	0x41, 0x5E,
+	0x41, 0x5D,
+	0x41, 0x5C,
+	0x41, 0x5B,
+	0x41, 0x5A,
+	0x41, 0x59,
+	0x41, 0x58,
+	0x5F,
+	0x5E,
+	0x5D,
+	0x5B,
+	0x5A,
+	0x59,
+	0x58,//pop rax
+	0x41, 0xFF, 0xE2,  //jmp r10 返回  不是InstCall注入 RIP要换地方
+	//0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,//call 地址
+	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0 //原来的rsp放在这
+};
+#pragma pack(pop) //恢复当前内存对齐状态
 
 
 NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
@@ -34,7 +106,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	char* pStartMapAdd = 0;
 	size_t AllocSize = 0;
 	size_t RetSize = 0;
-
+	Manual_Mapping_data ManualMapData = { 0 };
 	IMAGE_NT_HEADERS* pNTHeader = nullptr;
 	IMAGE_FILE_HEADER* pFileHeader = nullptr;
 
@@ -55,6 +127,16 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 
 	status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&pStartMapAdd, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);//申请3环的游戏的内存 （r3 的内存）
 
+	ManualMapData.dwReadson = 0;
+	ManualMapData.pGetProcAddress = (f_GetProcAddress)g_fnGetProcAddress;
+	ManualMapData.pLoadLibraryA = (f_LoadLibraryA)g_fnLoadLibrary;
+	ManualMapData.pRtlAddFunctionTable = (f_RtlAddFunctionTable)g_fnRtlAddFunction;
+
+	ManualMapData.pBase = pStartMapAdd;
+	ManualMapData.bContinue = false;   
+	ManualMapData.bFirst = true;
+	ManualMapData.bStart = false;
+	ManualMapData.DllSize = AllocSize;
 
 	if (!NT_SUCCESS(status)) {  //x64
 		Log("FAILED to get aollcate mem", true, status);
@@ -62,6 +144,8 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	}
 
 	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize)); 
+
+	
 
 	Process = (PEPROCESS)IoGetCurrentProcess();
 
