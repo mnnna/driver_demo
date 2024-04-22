@@ -107,8 +107,10 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	size_t AllocSize = 0;
 	size_t RetSize = 0;
 	Manual_Mapping_data ManualMapData = { 0 };
+	PVOID pManuaMapData = 0 ;
 	IMAGE_NT_HEADERS* pNTHeader = nullptr;
 	IMAGE_FILE_HEADER* pFileHeader = nullptr;
+	IMAGE_OPTIONAL_HEADER* pOptHeader = NULL;
 
 	if (!reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_magic !=  0x5A4D){  // 5A4D
 		status = STATUS_INVALID_PARAMETER;
@@ -118,13 +120,14 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 
 	pNTHeader = (IMAGE_NT_HEADERS*)((ULONG_PTR)p_dll_memory + reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_lfanew);
 	pFileHeader = &pNTHeader->FileHeader; // &?
+	pOptHeader = &pNTHeader->OptionalHeader;
 
 	if (pFileHeader->Machine != IMAGE_FILE_MACHINE_AMD64) {  //x64
 		status = STATUS_NOT_SUPPORTED;
 		Log("Is not a x64 PE", true, status);
 		return status;
 	}
-
+	AllocSize = pOptHeader->SizeOfImage;
 	status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&pStartMapAdd, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);//申请3环的游戏的内存 （r3 的内存）
 
 	ManualMapData.dwReadson = 0;
@@ -156,17 +159,32 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		return status;
 	}
 
+
 	IMAGE_SECTION_HEADER* pSectionHeader =  IMAGE_FIRST_SECTION(pNTHeader); // 拿节区头
 	for (int i = 0; i < pFileHeader->NumberOfSections; i++, pSectionHeader++) {
 		if (pSectionHeader->SizeOfRawData) {
 			status = MmCopyVirtualMemory(Process, p_dll_memory+ pSectionHeader->PointerToRawData , Process, pStartMapAdd + pSectionHeader->VirtualAddress , pSectionHeader->SizeOfRawData, KernelMode, &RetSize); 
-		if (!NT_SUCCESS(status)) {  //x64
-			Log("FAILED to load section", true, status);
-			return status;
-		}
+			if (!NT_SUCCESS(status)) {  
+					Log("FAILED to load section", true, status);
+					return status;
+			}
 		}
 	}
 
+	
+	AllocSize = PAGE_SIZE;
+	status = ZwAllocateVirtualMemory(NtCurrentProcess(), &pManuaMapData, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	if (!NT_SUCCESS(status)) {  
+		Log("FAILED to allocmem", true, status);
+		return status;
+	}
+	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize));
+
+	status = MmCopyVirtualMemory(Process, &ManualMapData, Process, pManuaMapData, sizeof(pManuaMapData), KernelMode, &RetSize);
+	if (!NT_SUCCESS(status)) {  
+		Log("FAILED to wirte  mem for maunaldata", true, status);
+		return status;
+	}
 }
 
 PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)

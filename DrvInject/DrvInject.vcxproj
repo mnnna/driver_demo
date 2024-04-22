@@ -41,6 +41,7 @@
     <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
     <ConfigurationType>Driver</ConfigurationType>
     <DriverType>WDM</DriverType>
+    <Driver_SpectreMitigation>Spectre</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
     <TargetVersion>Windows10</TargetVersion>
@@ -85,6 +86,15 @@
     <DriverSign>
       <FileDigestAlgorithm>sha256</FileDigestAlgorithm>
     </DriverSign>
+    <ClCompile>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <ClCompile>
+      <ControlFlowGuard>false</ControlFlowGuard>
+    </ClCompile>
+    <ClCompile>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
@@ -94,6 +104,7 @@
     <ClCompile Include="DrvMain.cpp" />
     <ClCompile Include="InstrCallBack.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="ShellCode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommIO.h" />
