@@ -28,13 +28,29 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 					*pPatch += reinterpret_cast<UINT_PTR>(LocationDelta);
 
 				}
-				pRelocaData = reinterpret_cast<IMAGE_BASE_RELOCATION*> (reinterpret_cast<char*> (pRelocaData) + pRelocaData->SizeOfBlock);
+				pRelocaData = reinterpret_cast<IMAGE_BASE_RELOCATION*> (reinterpret_cast<char*> (pRelocaData) + pRelocaData->SizeOfBlock); //遍历条目
 			} 
 		}
 
 	}
-	//实现手动加载 DLL
+	//实现手动加载所用到的其他DLL
 	if (pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {   //判断是否有 IAT 表
+		IMAGE_IMPORT_DESCRIPTOR* pImportDescr = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);// 指向导入表描述符
 		
+		while (pImportDescr->Name) { // 遍历导入表描述符 所引用的dll ， 重定位函数的地址
+			HMODULE hDll = pData->pLoadLibraryA(pBase + pImportDescr->Name); // pImportDescr->Name 是指向字符串的相对地址， 需要加 pbase， 返回值是一个 模块; 这一步实现加载导入表 中的 dll
+
+			// 修复 dLL 里面到处的函数地址
+			// INT 导入名称表
+			// IAT 导入地址表  
+
+			ULONG_PTR* pInt = (ULONG_PTR*)(pBase + pImportDescr->OriginalFirstThunk); //INT
+			ULONG_PTR* pIat = (ULONG_PTR*)(pBase + pImportDescr->FirstThunk); //IAT
+
+			if (!pInt) pInt = pIat; //双桥结构
+
+			for (; *pIat; ++pIat, ++pInt) {}
+
+		}
 	} //
 }
