@@ -38,7 +38,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 		IMAGE_IMPORT_DESCRIPTOR* pImportDescr = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);// 指向导入表描述符
 		
 		while (pImportDescr->Name) { // 遍历导入表描述符 所引用的dll ， 重定位函数的地址
-			HMODULE hDll = pData->pLoadLibraryA(pBase + pImportDescr->Name); // pImportDescr->Name 是指向字符串的相对地址， 需要加 pbase， 返回值是一个 模块; 这一步实现加载导入表 中的 dll
+			HMODULE hDll = pData->pLoadLibraryA(pBase + pImportDescr->Name); // pImportDescr->Name 是指向字符串的RVA地址， 需要加 pbase， 返回值是一个 模块; 这一步实现加载导入表 中的 dll
 
 			// 修复 dLL 里面到处的函数地址
 			// INT 导入名称表
@@ -49,8 +49,39 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 
 			if (!pInt) pInt = pIat; //双桥结构
 
-			for (; *pIat; ++pIat, ++pInt) {}
+			for (; *pIat; ++pIat, ++pInt) {
+				if (IMAGE_SNAP_BY_ORDINAL(*pInt)) {  //判断是否是序号导出
+					*pIat = (ULONG_PTR)pData->pGetProcAddress(hDll, (char*)(*pInt & 0xffff)); //取低两个字节？？？？
+				}
+				else {
+					IMAGE_IMPORT_BY_NAME*  pImport = (IMAGE_IMPORT_BY_NAME*)(pBase + *pInt);
+					(ULONG_PTR)pData->pGetProcAddress(hDll, pImport->Name);
+				}
+			}
+			pImportDescr++;
 
 		}
 	} //
+
+	// 手动 调佣 tls 
+#define DLL_PROCESS_ATTACH 1
+	if (pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size) { // 定位 tls 回调表: image_Data_directory_tlsDriectrory
+		auto* pTLS = reinterpret_cast<IMAGE_TLS_DIRECTORY*>(pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+		auto* pCallBack = reinterpret_cast<PIMAGE_TLS_CALLBACK*>(pTLS->AddressOfCallBacks);
+
+		for (; pCallBack && *pCallBack; ++pCallBack) {
+			(*pCallBack)(pBase, DLL_PROCESS_ATTACH, nullptr);
+		}
+
+	}
+
+	//修复异常表
+	auto excep = pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION];
+	if (excep.Size) {
+		pData->pRtlAddFunctionTable((_IMAGE_RUNTIME_FUNCTION_ENTRY*)(pBase + excep.VirtualAddress), excep.Size / sizeof(_IMAGE_RUNTIME_FUNCTION_ENTRY),(DWORD64) pBase);
+	}
+
+	while (!pData->bContinue);
+	//手动调佣  dll main
+	((f_DLL_ENTRY_POINT)(pOptionHeader->AddressOfEntryPoint))(pBase, DLL_PROCESS_ATTACH, 0);
 }
