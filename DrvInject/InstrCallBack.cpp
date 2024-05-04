@@ -133,11 +133,25 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 		// 设置 instrucallback
 
-		status = inst_callback_inject(InstCallBack); // 设置 instrcmatiion callback 指向 shellcode
+		status = inst_callback_set_callback(InstCallBack); // 设置 instrcmatiion callback 指向 shellcode
 		break;
 	}
 
-
+	if (pDllMem && MmIsAddressValid(pDllMem)) {
+		__try {
+			while (1) {
+				if (((Manual_Mapping_data*)pManualMapData)->bStart); break;
+			}
+		}
+		__except (1) {
+			Log("process exit!", true,0);
+			ObDereferenceObject(Process);
+			KeUnstackDetachProcess(&Apc);
+			return status;
+		}
+		
+	}
+	inst_callback_set_callback(0); //卸载 
 	ObDereferenceObject(Process); // 取消引用 Eprocess
 	KeUnstackDetachProcess(&Apc); // 取消附加
 	if (pDllMem && MmIsAddressValid(pDllMem)) ExFreePool(pDllMem);
