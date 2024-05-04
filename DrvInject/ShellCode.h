@@ -11,9 +11,7 @@ using f_DLL_ENTRY_POINT = BOOLEAN(__stdcall*)(void* hDll, DWORD32 dwReason, void
 using f_RtlAddFunctionTable = BOOLEAN(__stdcall*)(_IMAGE_RUNTIME_FUNCTION_ENTRY* FunctionTable, DWORD32 EntryCount, DWORD64 BaseAddress);
 
 EXTERN_C
-NTSYSAPI
 NTSTATUS
-NTAPI
 ZwSetInformationProcess(
 	__in HANDLE ProcessHandle,
 	__in PROCESSINFOCLASS ProcessInformationClass,
@@ -21,9 +19,12 @@ ZwSetInformationProcess(
 	__in ULONG ProcessInformationLength
 );
 
-EXTERN_C NTSTATUS MmCopyVirtualMemory(PEPROCESS FromProcess, PVOID FromAddress,
+EXTERN_C
+NTSTATUS
+MmCopyVirtualMemory(PEPROCESS FromProcess, PVOID FromAddress,
 	PEPROCESS ToProcess, PVOID ToAddress, SIZE_T BufferSize, KPROCESSOR_MODE PreviousMode,
 	PSIZE_T NumberOfBytesCopied);
+
 
 
 void __stdcall InstruShellCode(Manual_Mapping_data* pData);

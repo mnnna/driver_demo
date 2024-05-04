@@ -1,5 +1,5 @@
 #include "ShellCode.h"
-
+//使用自定位,找到pData 这里pData是通过RCX传进来的
 void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 {
 	if (!pData->bFirst) return;

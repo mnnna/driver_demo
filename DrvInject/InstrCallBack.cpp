@@ -70,11 +70,38 @@ char g_instcall_shellcode[] =
 	0x58,//pop rax
 	0x41, 0xFF, 0xE2,  //jmp r10 返回  不是InstCall注入 RIP要换地方
 	//0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,//call 地址
-	0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,  // rip
 	0,0,0,0,0,0,0,0 //原来的rsp放在这
 };
 #pragma pack(pop) //恢复当前内存对齐状态
 
+NTSTATUS inst_callback_set_callback(PVOID insta_callback) {
+	NTSTATUS status = STATUS_SUCCESS;
+	PVOID InstCallBack = insta_callback;
+	PACCESS_TOKEN Token = { 0 };
+	PEPROCESS PE = { 0 };
+	PULONG TokenMask = { 0 };
+
+	PE = (PEPROCESS) IoGetCurrentProcess();
+	Token = PsReferencePrimaryToken(PE);
+	TokenMask = (PULONG)((ULONG_PTR)Token + 0x40);
+
+	TokenMask[0] |= 0x10000;
+	TokenMask[1] |= 0x10000;
+	TokenMask[2] |= 0x10000;
+
+	status = ZwSetInformationProcess(NtCurrentProcess(), ProcessInstrumentationCallback, &insta_callback, sizeof(PVOID)); 
+
+	if (!NT_SUCCESS(status)) {  //x64
+		Log("FAILED to set instrcallback", true, status);
+	}
+	else {
+		Log("set instrcallback successfully", true, status);
+	}
+
+	return status;
+
+}
 
 NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 {	
@@ -82,6 +109,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 	PEPROCESS Process = { 0 };
 	KAPC_STATE Apc = { 0 };
 	PUCHAR pDllMem = { 0 };
+	PVOID InstCallBack =  0 , pManualMapData =0;
 
 	status = PsLookupProcessByProcessId(process_id, &Process);
 
@@ -93,21 +121,38 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 
 	KeStackAttachProcess(Process, &Apc); //附加
-	// 读到内存-----
-	PUCHAR pDllMem =  install_callback_get_dll_memory(us_dll_path);
-	// 读到内存-----
+	while (TRUE) {
+		PUCHAR pDllMem = install_callback_get_dll_memory(us_dll_path); 	// 读到内存-----
+		if (!pDllMem) {
+			status = STATUS_UNSUCCESSFUL;
+			break;
+		}
+		status = inst_callback_alloc_memory(pDllMem, &InstCallBack, &pManualMapData); //  手动加载 dll ， 模拟 dll 的加载流程
 
-	return NTSTATUS();
+		if (!NT_SUCCESS(status))  break; 
+
+		// 设置 instrucallback
+
+		status = inst_callback_inject(InstCallBack); // 设置 instrcmatiion callback 指向 shellcode
+		break;
+	}
+
+
+	ObDereferenceObject(Process); // 取消引用 Eprocess
+	KeUnstackDetachProcess(&Apc); // 取消附加
+	if (pDllMem && MmIsAddressValid(pDllMem)) ExFreePool(pDllMem);
+
+	return status ;
 }
 
-NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID p_manual_data) {
+NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID* p_manual_data) {
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
 	PEPROCESS Process = { 0 };
 	char* pStartMapAdd = 0;
 	size_t AllocSize = 0;
 	size_t RetSize = 0;
 	Manual_Mapping_data ManualMapData = { 0 };
-	PVOID pManuaMapData = 0 ;
+	PVOID pManuaMapData = 0 , pShellCode=0;
 	IMAGE_NT_HEADERS* pNTHeader = nullptr;
 	IMAGE_FILE_HEADER* pFileHeader = nullptr;
 	IMAGE_OPTIONAL_HEADER* pOptHeader = NULL;
@@ -185,6 +230,46 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		Log("FAILED to wirte  mem for maunaldata", true, status);
 		return status;
 	}
+
+	// 映射 shellcode, 把 shellcode 加载到内存中
+	ZwAllocateVirtualMemory(NtCurrentProcess(), &pShellCode, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	if (!NT_SUCCESS(status)) {
+		Log("FAILED to alloc  mem for shellcode", true, status);
+		return status;
+	}
+	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize));
+
+	status = MmCopyVirtualMemory(Process, InstruShellCode, Process, pShellCode, AllocSize, KernelMode, &RetSize);
+	if (!NT_SUCCESS(status)) {
+		Log("FAILED to write mem  for shellcode", true, status);
+		return status;
+	}
+
+	//  g_instcall_shellcode
+
+	shellcode_t shell_code; 
+	memset(&shell_code, 0, sizeof(shell_code));
+	memcpy(&shell_code, &g_instcall_shellcode, sizeof(shellcode_t));
+
+	shell_code.manual_data = (UINT64)pManuaMapData;  //传进 rcx 当做参数
+	shell_code.rip = (UINT64)pShellCode;
+
+	status = ZwAllocateVirtualMemory(NtCurrentProcess(), _inst_callbak_addr, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	if (!NT_SUCCESS(status)) {
+		Log("FAILED to alloc mem for instrcall shellcode", true, status);
+		return status;
+	}
+	RtlSecureZeroMemory(*_inst_callbak_addr, sizeof(AllocSize));
+
+	status = MmCopyVirtualMemory(Process, &shell_code, Process, *_inst_callbak_addr, sizeof(shellcode_t), KernelMode, &RetSize);
+	if (!NT_SUCCESS(status)) {
+		Log("FAILED to write mem for instrcall shellcode", true, status);
+		return status;
+	}
+
+	// 
+	*p_manual_data = pManuaMapData;
+	return status;
 }
 
 PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
