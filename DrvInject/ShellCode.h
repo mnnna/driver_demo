@@ -11,7 +11,9 @@ using f_DLL_ENTRY_POINT = BOOLEAN(__stdcall*)(void* hDll, DWORD32 dwReason, void
 using f_RtlAddFunctionTable = BOOLEAN(__stdcall*)(_IMAGE_RUNTIME_FUNCTION_ENTRY* FunctionTable, DWORD32 EntryCount, DWORD64 BaseAddress);
 
 EXTERN_C
+NTSYSAPI
 NTSTATUS
+NTAPI
 ZwSetInformationProcess(
 	__in HANDLE ProcessHandle,
 	__in PROCESSINFOCLASS ProcessInformationClass,
@@ -27,7 +29,7 @@ MmCopyVirtualMemory(PEPROCESS FromProcess, PVOID FromAddress,
 
 
 
-void __stdcall InstruShellCode(Manual_Mapping_data* pData);
+
 
 struct Manual_Mapping_data//内存映射dll对象
 {
@@ -46,3 +48,5 @@ struct Manual_Mapping_data//内存映射dll对象
 	//BOOLEAN clean;//可以改变属性了 去掉PE头了
 	size_t DllSize;
 };
+
+void __stdcall InstruShellCode(Manual_Mapping_data* pData);

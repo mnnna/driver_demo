@@ -122,7 +122,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 	KeStackAttachProcess(Process, &Apc); //附加
 	while (TRUE) {
-		PUCHAR pDllMem = install_callback_get_dll_memory(us_dll_path); 	// 读到内存-----
+		pDllMem = install_callback_get_dll_memory(us_dll_path); 	// 读到内存-----
 		if (!pDllMem) {
 			status = STATUS_UNSUCCESSFUL;
 			break;
@@ -140,7 +140,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 	if (pDllMem && MmIsAddressValid(pDllMem)) {
 		__try {
 			while (1) {
-				if (((Manual_Mapping_data*)pManualMapData)->bStart); break;
+				if (((Manual_Mapping_data*)pManualMapData)->bStart) break;
 			}
 		}
 		__except (1) {
@@ -151,7 +151,21 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 		}
 		
 	}
-	inst_callback_set_callback(0); //卸载 
+	inst_callback_set_callback(0); //卸载  
+
+	if (pDllMem && MmIsAddressValid(pDllMem) && PsLookupProcessByProcessId(process_id, &Process) != STATUS_PENDING) {
+		__try {
+			while (1) {
+				*(PUCHAR)((((Manual_Mapping_data*)pManualMapData)->pBase)) = 0;
+				((Manual_Mapping_data*)pManualMapData)->bContinue = true; 
+			}
+		}
+		__except (1) {
+			Log("process exit!", true, 0);
+		}
+	}
+
+
 	ObDereferenceObject(Process); // 取消引用 Eprocess
 	KeUnstackDetachProcess(&Apc); // 取消附加
 	if (pDllMem && MmIsAddressValid(pDllMem)) ExFreePool(pDllMem);
@@ -171,7 +185,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	IMAGE_FILE_HEADER* pFileHeader = nullptr;
 	IMAGE_OPTIONAL_HEADER* pOptHeader = NULL;
 
-	if (!reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_magic !=  0x5A4D){  // 5A4D
+	if (reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_magic !=  0x5A4D){  // 5A4D
 		status = STATUS_INVALID_PARAMETER;
 		Log("Is not a valid PE", true, status);
 		return status;
@@ -326,11 +340,8 @@ PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 		ZwClose(hFile);
 		Log("failed to read file ", true, status);
 		return 0;
-	
 
+	}
 	ZwClose(hFile);
-
-
-
 	return pDllMem;
 }
