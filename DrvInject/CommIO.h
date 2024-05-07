@@ -1,6 +1,5 @@
 #pragma once
-#include <ntifs.h>
-#include <ntddk.h>
+#include "ShellCode.h"
 
 #define  DEVICENAME L"\\Device\\DemoInject"
 #define  SYBOLNAME L"\\??\\DemoInject"

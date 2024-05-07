@@ -10,6 +10,12 @@ using f_GetProcAddress = PVOID(__stdcall*)(HMODULE hModule, LPCSTR lpProcName);
 using f_DLL_ENTRY_POINT = BOOLEAN(__stdcall*)(void* hDll, DWORD32 dwReason, void* pReserved);
 using f_RtlAddFunctionTable = BOOLEAN(__stdcall*)(_IMAGE_RUNTIME_FUNCTION_ENTRY* FunctionTable, DWORD32 EntryCount, DWORD64 BaseAddress);
 
+extern UINT64 g_fnLoadLibrary;
+extern UINT64 g_fnGetProcAddress;
+extern UINT64 g_fnRtlAddFunction;
+//DWORD32 g_dwPid = NULL;
+//wchar_t* g_zDllName = NULL;
+
 EXTERN_C
 NTSYSAPI
 NTSTATUS

@@ -1,6 +1,15 @@
 #include "InstrCallBack.h"
 #include "Logger.h"
 #include"ShellCode.h"
+
+UINT64 g_fnLoadLibrary = NULL;
+UINT64 g_fnGetProcAddress = NULL;
+UINT64 g_fnRtlAddFunction = NULL;
+//DWORD32 g_dwPid = NULL;
+//wchar_t* g_zDllName = NULL;
+
+
+#pragma warning(disable:6001);
 //要注入的 DLL读到内存中
 #pragma pack(push)    //保存当前内存对齐状态
 #pragma pack(1) //设置内存对齐值为1 相当于没有内存对齐的概念
