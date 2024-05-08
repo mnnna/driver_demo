@@ -53,6 +53,11 @@ NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 		wchar_t DllR0Name[260] = { 0 }; // whar_t unicode ¿í×Ö·û 
 		wcscpy(DllR0Name, L"\\??\\");
 		wcscat(DllR0Name, info->szDllName);
+		UNICODE_STRING r0_dll_path{ 0 };
+		RtlInitUnicodeString(&r0_dll_path, info->szDllName);
+
+
+		status = inst_callback_inject((HANDLE)info->dwPid, &r0_dll_path);
 
 		length = sizeof(PINIT_DATA);
 		break; 

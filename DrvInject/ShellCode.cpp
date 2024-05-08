@@ -1,5 +1,6 @@
 #include "ShellCode.h"
 //使用自定位,找到pData 这里pData是通过RCX传进来的
+
 void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 {
 	if (!pData->bFirst) return;
@@ -20,12 +21,16 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 			while (pRelocaData < pReloadEnd && pRelocaData->SizeOfBlock) {
 				UINT64 AmountOfEntries = ( pRelocaData->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION))/ sizeof(short);  // ?????
 
+				
 				unsigned short*  pRelativeInfo = reinterpret_cast<unsigned short*> (pRelocaData + 1);
 				for (UINT64 i = 0; i != AmountOfEntries; i++) {
 					//计算需要重定位的地址 
-					auto pPatch = reinterpret_cast<UINT_PTR*>(pBase + pRelocaData->VirtualAddress + (*(pRelativeInfo) & 0xFFF));
-					//手动重定位
-					*pPatch += reinterpret_cast<UINT_PTR>(LocationDelta);
+					if (RELOC_FLAG(*pRelativeInfo)) {
+						auto pPatch = reinterpret_cast<UINT_PTR*>(pBase + pRelocaData->VirtualAddress + (*(pRelativeInfo) & 0xFFF));
+						//手动重定位
+						*pPatch += reinterpret_cast<UINT_PTR>(LocationDelta);
+					}
+					
 
 				}
 				pRelocaData = reinterpret_cast<IMAGE_BASE_RELOCATION*> (reinterpret_cast<char*> (pRelocaData) + pRelocaData->SizeOfBlock); //遍历条目

@@ -3,6 +3,11 @@
 #include<ntddk.h>
 #include<ntimage.h>
 
+#define RELOC_FLAG64(RelInfo) ((RelInfo >> 0x0C) == IMAGE_REL_BASED_DIR64)
+#define RELOC_FLAG RELOC_FLAG64
+
+
+
 typedef PVOID HINSTANCE, HMODULE;
 
 using f_LoadLibraryA = HINSTANCE(__stdcall*)(const char* lpLibFilename);
