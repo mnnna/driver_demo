@@ -95,9 +95,9 @@ NTSTATUS inst_callback_set_callback(PVOID insta_callback) {
 	Token = PsReferencePrimaryToken(PE);
 	TokenMask = (PULONG)((ULONG_PTR)Token + 0x40);
 
-	TokenMask[0] |= 0x10000;
-	TokenMask[1] |= 0x10000;
-	TokenMask[2] |= 0x10000;
+	TokenMask[0] |= 0x100000;
+	TokenMask[1] |= 0x100000;
+	TokenMask[2] |= 0x100000;
 
 	status = ZwSetInformationProcess(NtCurrentProcess(), ProcessInstrumentationCallback, &insta_callback, sizeof(PVOID)); 
 
@@ -105,7 +105,7 @@ NTSTATUS inst_callback_set_callback(PVOID insta_callback) {
 		Log("FAILED to set instrcallback", true, status);
 	}
 	else {
-		Log("set instrcallback successfully", true, status);
+		Log("set instrcallback successfully", false, 0);
 	}
 
 	return status;
@@ -165,7 +165,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 	if (pDllMem && MmIsAddressValid(pDllMem) && PsLookupProcessByProcessId(process_id, &Process) != STATUS_PENDING) {
 		__try {
 			while (1) {
-				*(PUCHAR)((((Manual_Mapping_data*)pManualMapData)->pBase)) = 0;
+				*(PUCHAR)((((Manual_Mapping_data*)pManualMapData))->pBase) = 0;
 				((Manual_Mapping_data*)pManualMapData)->bContinue = true; 
 			}
 		}
@@ -211,6 +211,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	}
 	AllocSize = pOptHeader->SizeOfImage;
 	status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&pStartMapAdd, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);//申请3环的游戏的内存 （r3 的内存）
+	RtlSecureZeroMemory(pStartMapAdd, AllocSize);
 
 	ManualMapData.dwReadson = 0;
 	ManualMapData.pGetProcAddress = (f_GetProcAddress)g_fnGetProcAddress;
@@ -260,9 +261,9 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		Log("FAILED to allocmem", true, status);
 		return status;
 	}
-	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize));
+	RtlSecureZeroMemory(pManuaMapData, sizeof(AllocSize));
 
-	status = MmCopyVirtualMemory(Process, &ManualMapData, Process, pManuaMapData, sizeof(pManuaMapData), KernelMode, &RetSize);
+	status = MmCopyVirtualMemory(Process, &ManualMapData, Process, pManuaMapData, sizeof(ManualMapData), KernelMode, &RetSize);
 	if (!NT_SUCCESS(status)) {  
 		Log("FAILED to wirte  mem for maunaldata", true, status);
 		return status;
@@ -274,7 +275,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		Log("FAILED to alloc  mem for shellcode", true, status);
 		return status;
 	}
-	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize));
+	RtlSecureZeroMemory(pShellCode, sizeof(AllocSize));
 
 	status = MmCopyVirtualMemory(Process, InstruShellCode, Process, pShellCode, AllocSize, KernelMode, &RetSize);
 	if (!NT_SUCCESS(status)) {
@@ -318,7 +319,7 @@ PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 	LARGE_INTEGER lainter = { 0 };
 	LARGE_INTEGER byteOffset = { 0 };
 	FILE_STANDARD_INFORMATION fileinfo = {0};
-	ULONG fileSize = 0;
+	ULONG64 fileSize = 0;
 	PUCHAR pDllMem = { 0 };
 
 	InitializeObjectAttributes(&objattr, us_dll_path, OBJ_CASE_INSENSITIVE, NULL, NULL);
@@ -337,7 +338,7 @@ PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 		return 0;
 	}
 	fileSize += 0x1000; // 内存对齐
-	fileSize = (ULONG)PAGE_ALIGN(fileSize);
+	fileSize = (ULONG64)PAGE_ALIGN(fileSize);
 
 	pDllMem = (PUCHAR)ExAllocatePoolWithTag(PagedPool, fileSize, 'Dllp');
 	RtlSecureZeroMemory(pDllMem,fileSize);

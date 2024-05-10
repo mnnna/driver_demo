@@ -8,7 +8,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 	pData->bStart = true;
 
 	char* pBase = pData->pBase;
-	auto pOptionHeader = &reinterpret_cast<IMAGE_NT_HEADERS*>((ULONG_PTR)pBase + reinterpret_cast<IMAGE_DOS_HEADER*>(pBase)->e_lfanew)->OptionalHeader;
+	auto* pOptionHeader = &reinterpret_cast<IMAGE_NT_HEADERS*>(pBase + reinterpret_cast<IMAGE_DOS_HEADER*>((uintptr_t)pBase)->e_lfanew)->OptionalHeader;
 
 	char* LocationDelta = pBase - pOptionHeader->ImageBase; //计算差值
 
@@ -23,7 +23,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 
 				
 				unsigned short*  pRelativeInfo = reinterpret_cast<unsigned short*> (pRelocaData + 1);
-				for (UINT64 i = 0; i != AmountOfEntries; i++) {
+				for (UINT64 i = 0; i != AmountOfEntries; ++i, ++pRelativeInfo ) {
 					//计算需要重定位的地址 
 					if (RELOC_FLAG(*pRelativeInfo)) {
 						auto pPatch = reinterpret_cast<UINT_PTR*>(pBase + pRelocaData->VirtualAddress + (*(pRelativeInfo) & 0xFFF));
@@ -40,7 +40,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 	}
 	//实现手动加载所用到的其他DLL
 	if (pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {   //判断是否有 IAT 表
-		IMAGE_IMPORT_DESCRIPTOR* pImportDescr = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);// 指向导入表描述符
+		IMAGE_IMPORT_DESCRIPTOR* pImportDescr = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(pBase + pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);// 指向导入表描述符
 		
 		while (pImportDescr->Name) { // 遍历导入表描述符 所引用的dll ， 重定位函数的地址
 			HMODULE hDll = pData->pLoadLibraryA(pBase + pImportDescr->Name); // pImportDescr->Name 是指向字符串的RVA地址， 需要加 pbase， 返回值是一个 模块; 这一步实现加载导入表 中的 dll
