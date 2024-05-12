@@ -1,8 +1,10 @@
 #pragma once
 #include "ShellCode.h"
+#include "InstrCallBack.h"
 
 #define  DEVICENAME L"\\Device\\DemoInject"
 #define  SYBOLNAME L"\\??\\DemoInject"
+
 #define CALLBACKINJECT CTL_CODE(FILE_DEVICE_UNKNOWN,0x801,METHOD_BUFFERED,FILE_ANY_ACCESS)
 
 EXTERN_C NTSTATUS DispatchCreate(PDEVICE_OBJECT DeviceObject, PIRP pIrp);
