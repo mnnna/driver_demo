@@ -158,10 +158,10 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 	if (pManualMapData && MmIsAddressValid(pManualMapData) && PsLookupProcessByProcessId(process_id, &Process) != STATUS_PENDING) {
 		__try {
-			while (1) {
+				DbgPrint("point: %s\n", (((Manual_Mapping_data*)pManualMapData))->pBase);
 				*(PUCHAR)((((Manual_Mapping_data*)pManualMapData))->pBase) = 0;
 				((Manual_Mapping_data*)pManualMapData)->bContinue = true; 
-			}
+
 		}
 		__except (1) {
 			Log("process exit!2", true, 0);
