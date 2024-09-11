@@ -9,7 +9,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 
 	char* pBase = pData->pBase;
 	//拿到选项头
-	auto* pOptionHeader = &reinterpret_cast<IMAGE_NT_HEADERS*>(pBase + reinterpret_cast<IMAGE_DOS_HEADER*>((uintptr_t)pBase)->e_lfanew)->OptionalHeader;
+	auto* pOptionHeader = &reinterpret_cast<IMAGE_NT_HEADERS*>(pBase + reinterpret_cast<IMAGE_DOS_HEADER*>((uintptr_t)pBase)->e_lfanew)->OptionalHeader;// 
 	//ImageBase 镜像基地址，或者说主模块基地址，在开启随机基址的情况下，该值仍然会有但是无效了。*
 	char* LocationDelta = pBase - pOptionHeader->ImageBase; //计算差值 到时候需要将需要重定位的地址加上这个差值进行手动重定位
 
@@ -27,7 +27,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 				UINT64 AmountOfEntries = ( pRelocaData->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION))/ sizeof(short);  // typeoffset中 RVA 占低12位
 
 				
-				unsigned short*  pRelativeInfo = reinterpret_cast<unsigned short*> (pRelocaData + 1);
+				unsigned short*  pRelativeInfo = reinterpret_cast<unsigned short*> (pRelocaData + 1); // IMAGE_BASE_RELOCATION 指针+1
 				for (UINT64 i = 0; i != AmountOfEntries; ++i, ++pRelativeInfo ) {
 					//计算需要重定位的地址 
 					if (RELOC_FLAG(*pRelativeInfo)) { //typeoffset的高4位是 重定位类型 如果是x64位直接寻址我们进行重定位
@@ -63,7 +63,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 			ULONG_PTR* pInt = (ULONG_PTR*)(pBase + pImportDescr->OriginalFirstThunk); //INT
 			ULONG_PTR* pIat = (ULONG_PTR*)(pBase + pImportDescr->FirstThunk); //IAT
 			//如果不存在int我们吧iat表给int 因为我们最后都是修改int表 直接改int表中保存的地址 ULONGLONG Function;
-			if (!pInt) pInt = pIat; //双桥结构
+			if (!pInt) pInt = pIat; //双桥结构允许在没有单独 INT 的情况下，使用 IAT 来作为导入表的源，这种情况通常发生在一些编译器优化或特殊情况下，没有独立的 INT，而是将 INT 和 IAT 合并为一个表。
 
 			for (; *pIat; ++pIat, ++pInt) {
 				if (IMAGE_SNAP_BY_ORDINAL(*pInt)) {  //判断是否是序号导出
@@ -90,6 +90,7 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 #define DLL_PROCESS_ATTACH 1
 	if (pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size) { // 定位 tls 回调表: image_Data_directory_tlsDriectrory
 		auto* pTLS = reinterpret_cast<IMAGE_TLS_DIRECTORY*>(pBase +  pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+
 		auto* pCallBack = reinterpret_cast<PIMAGE_TLS_CALLBACK*>(pTLS->AddressOfCallBacks);
 
 		for (; pCallBack && *pCallBack; ++pCallBack) {
@@ -100,8 +101,8 @@ void __stdcall InstruShellCode(Manual_Mapping_data* pData)
 
 	//修复异常表
 	auto excep = pOptionHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION];
-	if (excep.Size) {
-		pData->pRtlAddFunctionTable((_IMAGE_RUNTIME_FUNCTION_ENTRY*)(pBase + excep.VirtualAddress), excep.Size / sizeof(_IMAGE_RUNTIME_FUNCTION_ENTRY),(DWORD64) pBase);
+	if (excep.Size) {  
+		pData->pRtlAddFunctionTable((_IMAGE_RUNTIME_FUNCTION_ENTRY*)(pBase + excep.VirtualAddress), excep.Size / sizeof(_IMAGE_RUNTIME_FUNCTION_ENTRY),(DWORD64)pBase);
 	}
 
 	while (!pData->bContinue);

@@ -2,9 +2,9 @@
 #include "Logger.h"
 #include"ShellCode.h"
 
-UINT64 g_fnLoadLibrary = NULL;
-UINT64 g_fnGetProcAddress = NULL;
-UINT64 g_fnRtlAddFunction = NULL;
+UINT64 g_fnLoadLibrary = 0;
+UINT64 g_fnGetProcAddress = 0;
+UINT64 g_fnRtlAddFunction = 0;
 //DWORD32 g_dwPid = NULL;
 //wchar_t* g_zDllName = NULL;
 
@@ -49,7 +49,7 @@ char g_instcall_shellcode[] =
 	0x48,0x89,0x25,0x4c,0x00,0x00,0x00,//将rsp保存   // mov qword ptr ds:[233A145006A], rsp
 	0x48,0x83,0xec,0x38,               // sub rsp,38
 	0x48,0x81,0xe4,0xf0,0xff,0xff,0xff, //强行对齐   and rsp, FFFFFFFFFFFFFFF0
-
+	
 	//00000217F568001 | 48:83EC 20 | sub rsp,0x20 |
 	//00000217F568001 | 48 : 83C4 20 | add rsp,0x20 |
 	//Call ShellCode 进行重定位
@@ -88,25 +88,19 @@ NTSTATUS inst_callback_set_callback(PVOID insta_callback) {
 	NTSTATUS status = STATUS_SUCCESS;
 	PVOID InstCallBack = insta_callback;
 	PACCESS_TOKEN Token = { 0 };
-	PEPROCESS PE = { 0 };
 	PULONG TokenMask = { 0 };
-
-	PE = (PEPROCESS) IoGetCurrentProcess();
-	Token = PsReferencePrimaryToken(PE);
+	
+	Token = PsReferencePrimaryToken(IoGetCurrentProcess()); // 获取 _EPROCESS 下的 TOKEN， 并置位来获取调试特权
 	TokenMask = (PULONG)((ULONG_PTR)Token + 0x40);
 
 	TokenMask[0] |= 0x100000;
 	TokenMask[1] |= 0x100000;
 	TokenMask[2] |= 0x100000;
 
-	status = ZwSetInformationProcess(NtCurrentProcess(), ProcessInstrumentationCallback, &insta_callback, sizeof(PVOID)); 
+	status = ZwSetInformationProcess(NtCurrentProcess(), ProcessInstrumentationCallback, &insta_callback, sizeof(PVOID)); // 用于设置或修改指定进程的各种属性或配置信息。这个函数提供了一种灵活的方式，允许驱动程序或内核模式代码对进程的行为、状态和内部属性进行控制和调整。
 
-	if (!NT_SUCCESS(status)) {  //x64
-		Log("FAILED to set instrcallback", true, status);
-	}
-	else {
-		Log("set instrcallback successfully", false, 0);
-	}
+	if (!NT_SUCCESS(status)) Log("failed to set instcall back", true, status);
+	else Log("set instcall back success", 0, 0);
 
 	return status;
 
@@ -114,12 +108,12 @@ NTSTATUS inst_callback_set_callback(PVOID insta_callback) {
 
 NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 {	
-	NTSTATUS status = STATUS_SUCCESS;
 	PEPROCESS Process = { 0 };
-	KAPC_STATE Apc = { 0 };
-	PUCHAR pDllMem = { 0 };
-	PVOID InstCallBack =  0 , pManualMapData =0;
-
+	NTSTATUS status = STATUS_SUCCESS;
+	KAPC_STATE Apc{ 0 };
+	PUCHAR pDllMem = 0;
+	PVOID InstCallBack = 0;//shellcode 所在的内存地址设置为instcallback的地址
+	PVOID pManualMapData = 0, pShellCode = 0;//分配的内存,一个是映射结构属性地址,一个是ShellCode地址
 	status = PsLookupProcessByProcessId(process_id, &Process);
 
 	if (!NT_SUCCESS(status)) {
@@ -145,14 +139,14 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 		status = inst_callback_set_callback(InstCallBack); // 设置 instrcmatiion callback 指向 shellcode
 		break;
 	}
-
+	DbgPrint("pDllMem: %p\n", pDllMem);
 	if (pDllMem && MmIsAddressValid(pDllMem)) {
 		__try {
 			while (1) {
 				if (((Manual_Mapping_data*)pManualMapData)->bStart) break;
 			}
 		}
-		__except (1) {
+		__except (1) { 
 			Log("process exit!", true,0);
 			ObDereferenceObject(Process);
 			KeUnstackDetachProcess(&Apc);
@@ -162,7 +156,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 	}
 	inst_callback_set_callback(0); //卸载  
 
-	if (pDllMem && MmIsAddressValid(pDllMem) && PsLookupProcessByProcessId(process_id, &Process) != STATUS_PENDING) {
+	if (pManualMapData && MmIsAddressValid(pManualMapData) && PsLookupProcessByProcessId(process_id, &Process) != STATUS_PENDING) {
 		__try {
 			while (1) {
 				*(PUCHAR)((((Manual_Mapping_data*)pManualMapData))->pBase) = 0;
@@ -170,7 +164,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 			}
 		}
 		__except (1) {
-			Log("process exit!", true, 0);
+			Log("process exit!2", true, 0);
 		}
 	}
 
@@ -178,21 +172,20 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 	ObDereferenceObject(Process); // 取消引用 Eprocess
 	KeUnstackDetachProcess(&Apc); // 取消附加
 	if (pDllMem && MmIsAddressValid(pDllMem)) ExFreePool(pDllMem);
-
 	return status ;
 }
 
 NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID* p_manual_data) {
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
-	PEPROCESS Process = { 0 };
-	char* pStartMapAdd = 0;
+	PEPROCESS Process{ 0 };
+	char* pStartMapAdd = 0; //R3层地址 通过ZwAllocatevirtual Dll从PE头开始的地址
 	size_t AllocSize = 0;
 	size_t RetSize = 0;
 	Manual_Mapping_data ManualMapData = { 0 };
 	PVOID pManuaMapData = 0 , pShellCode=0;
 	IMAGE_NT_HEADERS* pNTHeader = nullptr;
 	IMAGE_FILE_HEADER* pFileHeader = nullptr;
-	IMAGE_OPTIONAL_HEADER* pOptHeader = NULL;
+	IMAGE_OPTIONAL_HEADER* pOptHeader = nullptr;
 
 	if (reinterpret_cast<IMAGE_DOS_HEADER*>(p_dll_memory)->e_magic !=  0x5A4D){  // 5A4D
 		status = STATUS_INVALID_PARAMETER;
@@ -209,10 +202,18 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		Log("Is not a x64 PE", true, status);
 		return status;
 	}
+
 	AllocSize = pOptHeader->SizeOfImage;
 	status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&pStartMapAdd, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);//申请3环的游戏的内存 （r3 的内存）
+	if (!NT_SUCCESS(status)) {
+		Log("failed to alloc memory", true, status);
+		return status;
+	}
 	RtlSecureZeroMemory(pStartMapAdd, AllocSize);
 
+
+	//初始化ManualMapData 这个结构体会通过shellcode的RCX寄存器传给重定位shellcode
+	//并且通过判断这些结构体中的标志位来及时取消instcall回调和隐藏卸载PE结构
 	ManualMapData.dwReadson = 0;
 	ManualMapData.pGetProcAddress = (f_GetProcAddress)g_fnGetProcAddress;
 	ManualMapData.pLoadLibraryA = (f_LoadLibraryA)g_fnLoadLibrary;
@@ -224,7 +225,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	ManualMapData.bStart = false;
 	ManualMapData.DllSize = AllocSize;
 
-	if (!NT_SUCCESS(status)) {  //x64
+	if (!NT_SUCCESS(status)) {  
 		Log("FAILED to get aollcate mem", true, status);
 		return status;
 	}
@@ -233,11 +234,11 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 
 	
 
-	Process = (PEPROCESS)IoGetCurrentProcess();
+	Process = IoGetCurrentProcess();
 
 	status = MmCopyVirtualMemory(Process, p_dll_memory, Process, pStartMapAdd, PAGE_SIZE, KernelMode, &RetSize);
 
-	if (!NT_SUCCESS(status)) {  //x64
+	if (!NT_SUCCESS(status)) { 
 		Log("FAILED to load pe header", true, status);
 		return status;
 	}
@@ -254,14 +255,14 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		}
 	}
 
-	
+
 	AllocSize = PAGE_SIZE;
 	status = ZwAllocateVirtualMemory(NtCurrentProcess(), &pManuaMapData, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	if (!NT_SUCCESS(status)) {  
-		Log("FAILED to allocmem", true, status);
+		Log("FAILED to allocmem for manualMapData", true, status);
 		return status;
 	}
-	RtlSecureZeroMemory(pManuaMapData, sizeof(AllocSize));
+	RtlSecureZeroMemory(pManuaMapData, AllocSize);
 
 	status = MmCopyVirtualMemory(Process, &ManualMapData, Process, pManuaMapData, sizeof(ManualMapData), KernelMode, &RetSize);
 	if (!NT_SUCCESS(status)) {  
@@ -270,12 +271,12 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	}
 
 	// 映射 shellcode, 把 shellcode 加载到内存中
-	ZwAllocateVirtualMemory(NtCurrentProcess(), &pShellCode, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	status =  ZwAllocateVirtualMemory(NtCurrentProcess(), &pShellCode, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	if (!NT_SUCCESS(status)) {
 		Log("FAILED to alloc  mem for shellcode", true, status);
 		return status;
 	}
-	RtlSecureZeroMemory(pShellCode, sizeof(AllocSize));
+	RtlSecureZeroMemory(pShellCode, AllocSize);
 
 	status = MmCopyVirtualMemory(Process, InstruShellCode, Process, pShellCode, AllocSize, KernelMode, &RetSize);
 	if (!NT_SUCCESS(status)) {
@@ -286,18 +287,18 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	//  g_instcall_shellcode
 
 	shellcode_t shell_code; 
-	memset(&shell_code, 0, sizeof(shell_code));
-	memcpy(&shell_code, &g_instcall_shellcode, sizeof(shellcode_t));
+	memset(&shell_code, 0, sizeof(shellcode_t));
+	memcpy(&shell_code, &g_instcall_shellcode, sizeof(shellcode_t)); // 通过结构体来操作 shellcode
 
 	shell_code.manual_data = (UINT64)pManuaMapData;  //传进 rcx 当做参数
-	shell_code.rip = (UINT64)pShellCode;
+	shell_code.rip = (UINT64)pShellCode; //PE加载器
 
 	status = ZwAllocateVirtualMemory(NtCurrentProcess(), _inst_callbak_addr, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	if (!NT_SUCCESS(status)) {
 		Log("FAILED to alloc mem for instrcall shellcode", true, status);
 		return status;
 	}
-	RtlSecureZeroMemory(*_inst_callbak_addr, sizeof(AllocSize));
+	RtlSecureZeroMemory(*_inst_callbak_addr, AllocSize);
 
 	status = MmCopyVirtualMemory(Process, &shell_code, Process, *_inst_callbak_addr, sizeof(shellcode_t), KernelMode, &RetSize);
 	if (!NT_SUCCESS(status)) {
@@ -312,17 +313,17 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 
 PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 {
-	HANDLE hFile;
+	HANDLE hFile = 0;
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
 	OBJECT_ATTRIBUTES objattr = { 0 };
 	IO_STATUS_BLOCK IoStatusBlock = { 0 };
 	LARGE_INTEGER lainter = { 0 };
 	LARGE_INTEGER byteOffset = { 0 };
 	FILE_STANDARD_INFORMATION fileinfo = {0};
-	ULONG64 fileSize = 0;
-	PUCHAR pDllMem = { 0 };
+	ULONG64 FileSize = 0;
+	PUCHAR pDllMemory = { 0 };
 
-	InitializeObjectAttributes(&objattr, us_dll_path, OBJ_CASE_INSENSITIVE, NULL, NULL);
+	InitializeObjectAttributes(&objattr, us_dll_path, OBJ_CASE_INSENSITIVE, 0, 0);
 	status =  ZwCreateFile(&hFile, GENERIC_READ, &objattr, &IoStatusBlock, &lainter, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ| FILE_SHARE_WRITE| FILE_SHARE_DELETE , FILE_OPEN, 0,0,0);
 	if (!NT_SUCCESS(status)) {
 		Log("failed to ctreate dll", true, status);
@@ -330,28 +331,29 @@ PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 		return 0;
 	}
 
-	status = NtQueryInformationFile(hFile, &IoStatusBlock, &fileinfo, sizeof(fileinfo), FileStandardInformation);// 获取 dll 的大小
-	fileSize = fileinfo.AllocationSize.QuadPart;
+	status = ZwQueryInformationFile(hFile, &IoStatusBlock, &fileinfo, sizeof(fileinfo), FileStandardInformation);// 获取 dll 的大小
+	FileSize = (ULONG64)fileinfo.AllocationSize.QuadPart;
 	if (!NT_SUCCESS(status)) {
 		Log("failed to get size info ", true, status);
 		status = STATUS_UNSUCCESSFUL;
 		return 0;
 	}
-	fileSize += 0x1000; // 内存对齐
-	fileSize = (ULONG64)PAGE_ALIGN(fileSize);
+	FileSize += 0x1000; // 内存对齐
+	FileSize = (UINT64)PAGE_ALIGN(FileSize);
 
-	pDllMem = (PUCHAR)ExAllocatePoolWithTag(PagedPool, fileSize, 'Dllp');
-	RtlSecureZeroMemory(pDllMem,fileSize);
+	pDllMemory = (PUCHAR)ExAllocatePoolWithTag(PagedPool, FileSize, 'Dllp');
+	RtlSecureZeroMemory(pDllMemory, FileSize);
 
-	status =  ZwReadFile(hFile, NULL, NULL, NULL, &IoStatusBlock, pDllMem, fileSize, &byteOffset, NULL);
+	status =  ZwReadFile(hFile, 0, 0, 0, &IoStatusBlock, pDllMemory, FileSize, &byteOffset, 0);
 	ZwFlushBuffersFile(hFile, &IoStatusBlock);
 	if (!NT_SUCCESS(status)) {
-		ExFreePool(pDllMem);
+		ExFreePool(pDllMemory);
 		ZwClose(hFile);
-		Log("failed to read file ", true, status);
-		return 0;
 
+		Log("failed to read file content", true, status);
+		return 0;
 	}
+
 	ZwClose(hFile);
-	return pDllMem;
+	return pDllMemory;
 }

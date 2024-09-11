@@ -50,18 +50,19 @@ NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 			length = 0;
 		}
 	
-		wchar_t DllR0Name[260] = { 0 }; // whar_t unicode ¿í×Ö·û 
+		wchar_t DllR0Name[MAX_PATH] = { 0 }; // whar_t unicode ¿í×Ö·û 
 		wcscpy(DllR0Name, L"\\??\\");
 		wcscat(DllR0Name, info->szDllName);
 		UNICODE_STRING r0_dll_path{ 0 };
-		RtlInitUnicodeString(&r0_dll_path, info->szDllName);
+		RtlInitUnicodeString(&r0_dll_path, DllR0Name);
+
 		status = inst_callback_inject((HANDLE)info->dwPid, &r0_dll_path);
 
 		length = sizeof(PINIT_DATA);
 		break; 
 	}
 	default:
-		status = STATUS_UNSUCCESSFUL;;
+		return status;
 	}
 
 		//DbgBreakPoint();
