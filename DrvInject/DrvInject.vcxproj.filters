@@ -29,6 +29,12 @@
     <Filter Include="ShellCode">
       <UniqueIdentifier>{6ac09d97-f8cb-417f-8d86-8adb6d257e47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="HideMem">
+      <UniqueIdentifier>{422ad7df-0278-42c8-8d2b-9039d4c3783d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hde64">
+      <UniqueIdentifier>{e95c5570-3680-44ed-8d33-7a98fba12668}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DrvMain.cpp">
@@ -46,6 +52,12 @@
     <ClCompile Include="ShellCode.cpp">
       <Filter>ShellCode</Filter>
     </ClCompile>
+    <ClCompile Include="HideMemory.cpp">
+      <Filter>HideMem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\驱动\源码\DrvInject\DrvInject\DrvInject\hde\hde64.cpp">
+      <Filter>Hde64</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommIO.h">
@@ -59,6 +71,21 @@
     </ClInclude>
     <ClInclude Include="ShellCode.h">
       <Filter>ShellCode</Filter>
+    </ClInclude>
+    <ClInclude Include="HideMemory.h">
+      <Filter>HideMem</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\源码\DrvInject\DrvInject\DrvInject\hde\hde64.h">
+      <Filter>Hde64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\源码\DrvInject\DrvInject\DrvInject\hde\headers.hpp">
+      <Filter>Hde64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\源码\DrvInject\DrvInject\DrvInject\hde\pstdint.h">
+      <Filter>Hde64</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\驱动\源码\DrvInject\DrvInject\DrvInject\hde\table64.h">
+      <Filter>Hde64</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

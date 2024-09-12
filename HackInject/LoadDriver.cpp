@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "LoadDriver.h"
 
-BOOL LoadDriver(const char* lpszDrivername, const char* sysFileName)
+BOOL LoadDriver(const char* lpszDrivername, const char* sysFileName) //lpszDrivername 注册表中的名称  sysFileName 文件的名称
 {
     BOOL bREt = TRUE;
     SC_HANDLE hService = NULL; 
     SC_HANDLE hServiceDDK = NULL;
     char szDriverFilePAth[256] = { 0 };
-    GetFullPathNameA(sysFileName, sizeof(szDriverFilePAth), szDriverFilePAth, NULL); 
+    GetFullPathNameA(sysFileName, sizeof(szDriverFilePAth), szDriverFilePAth, NULL); // 根据文件名获取路径
     //打开服务控制管理器数据库（SCM）
     hService = OpenSCManagerA(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (hService == NULL) {

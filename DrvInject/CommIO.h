@@ -16,6 +16,6 @@ typedef struct _INT_DATA {
 	wchar_t* szDllName;
 
 	UINT64 fnLoadLibrary;
-	UINT64 fnGetProcAddress;
-	UINT64 fnRtlAddFunction;
+	UINT64 fnGetProc;
+	UINT64 fnAddFunc;
 }INIT_DATA, * PINIT_DATA;

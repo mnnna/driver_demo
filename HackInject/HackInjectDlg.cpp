@@ -115,7 +115,7 @@ BOOL CHackInjectDlg::OnInitDialog()
 
 	SetWindowText(L"驱动注入器 - mnnna");
 
-	if (!LoadDriver(DRIVERNAME, "DrvInject.sys")) {
+	if (!LoadDriver(DRIVERNAME, "DrvInject.sys")) { 
 		GetDlgItem(IDC_STATIC_TIP)->SetWindowTextW(L"驱动加载失败");
 		return FALSE;
 	}

@@ -40,23 +40,23 @@ NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 	{
 	case CALLBACKINJECT: {
 		
-		PINIT_DATA info = (PINIT_DATA)pIrp->AssociatedIrp.SystemBuffer;
-		g_fnLoadLibrary = info->fnLoadLibrary; 
-		g_fnGetProcAddress = info->fnGetProcAddress;
-		g_fnRtlAddFunction = info->fnRtlAddFunction;
+		PINIT_DATA Info = (PINIT_DATA)pIrp->AssociatedIrp.SystemBuffer;
+		g_fnGetProcAddress = Info->fnGetProc;
+		g_fnLoadLibrary = Info->fnLoadLibrary;
+		g_fnAddFuntionTable = Info->fnAddFunc;
 
-		if (g_fnLoadLibrary == 0 || g_fnGetProcAddress == 0 || g_fnRtlAddFunction == 0) {
-			DbgPrint("g_fnGetProcAddress %p,g_fnLoadLibrary:%p,g_fnAddFuntionTable:%p", g_fnGetProcAddress, g_fnLoadLibrary, g_fnRtlAddFunction);
+		if (g_fnLoadLibrary == 0 || g_fnGetProcAddress == 0 || g_fnAddFuntionTable == 0) {
+			DbgPrint("g_fnGetProcAddress %p,g_fnLoadLibrary:%p,g_fnAddFuntionTable:%p", g_fnGetProcAddress, g_fnLoadLibrary, g_fnAddFuntionTable);
 			return STATUS_UNSUCCESSFUL;
 		}
 	
 		wchar_t DllR0Name[MAX_PATH] = { 0 }; // whar_t unicode ¿í×Ö·û 
 		wcscpy(DllR0Name, L"\\??\\");
-		wcscat(DllR0Name, info->szDllName);
+		wcscat(DllR0Name, Info->szDllName);
 		UNICODE_STRING r0_dll_path{ 0 };
 		RtlInitUnicodeString(&r0_dll_path, DllR0Name);
 
-		status = inst_callback_inject((HANDLE)info->dwPid, &r0_dll_path);
+		status = inst_callback_inject((HANDLE)Info->dwPid, &r0_dll_path);
 
 		length = sizeof(PINIT_DATA);
 		break; 
