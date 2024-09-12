@@ -1,11 +1,11 @@
 #include "CommIO.h"
 
 
-void DriverUnload(PDRIVER_OBJECT DriverObject){
-	if (DriverObject->DeviceObject) {
-		IoDeleteDevice(DriverObject->DeviceObject);
-		UNICODE_STRING symbolLinkName = RTL_CONSTANT_STRING(SYBOLNAME);
-		NTSTATUS status = IoDeleteSymbolicLink(&symbolLinkName);
+void DriverUnload(PDRIVER_OBJECT pDriver){
+	if (pDriver->DeviceObject) {
+		IoDeleteDevice(pDriver->DeviceObject);
+		UNICODE_STRING SymbolName = RTL_CONSTANT_STRING(SYBOLNAME);
+		NTSTATUS status = IoDeleteSymbolicLink(&SymbolName);
 		if (!NT_SUCCESS(status)) {
 			DbgPrint("符号删除成功！\n");
 		}
@@ -13,17 +13,17 @@ void DriverUnload(PDRIVER_OBJECT DriverObject){
 	DbgPrint("驱动卸载成功！\n"); 
 }
 
-EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegisterPath) {
+EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT pDriver, PUNICODE_STRING RegisterPath) {
 	RegisterPath;
-	DriverObject->DriverUnload = DriverUnload;
+	NTSTATUS status = STATUS_SUCCESS;
+	pDriver->DriverUnload = DriverUnload;
 
-	PDEVICE_OBJECT pDeviceObj;
-	NTSTATUS status;
-	UNICODE_STRING deviceName = RTL_CONSTANT_STRING(DEVICENAME);
-	UNICODE_STRING symbolLinkName = RTL_CONSTANT_STRING(SYBOLNAME);
+	PDEVICE_OBJECT pDevice = NULL;
+	UNICODE_STRING DeviceName = RTL_CONSTANT_STRING(DEVICENAME);
+	UNICODE_STRING SymbolName = RTL_CONSTANT_STRING(SYBOLNAME);
 
 	//创建设备对象
-	status = IoCreateDevice(DriverObject, NULL, &deviceName, FILE_DEVICE_UNKNOWN, NULL, FALSE, &pDeviceObj);
+	status = IoCreateDevice(pDriver, NULL, &DeviceName, FILE_DEVICE_UNKNOWN, NULL, FALSE, &pDevice);
 	if (!NT_SUCCESS(status)) {
 		return status;
 	}
@@ -31,16 +31,16 @@ EXTERN_C NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING Regis
 	//pDeviceObj->Flags = 0; 
 
 
-	status = IoCreateSymbolicLink(&symbolLinkName, &deviceName);
+	status = IoCreateSymbolicLink(&SymbolName, &DeviceName);
 	if (!NT_SUCCESS(status)) {
-		IoDeleteDevice(pDeviceObj); 
+		IoDeleteDevice(pDevice);
 		return status;
 	}
 
 	//例程 
-	DriverObject->MajorFunction[IRP_MJ_CREATE] = DispatchCreate;
-	DriverObject->MajorFunction[IRP_MJ_CLOSE] = DispatchClose;
-	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchControl;
+	pDriver->MajorFunction[IRP_MJ_CREATE] = DispatchCreate;
+	pDriver->MajorFunction[IRP_MJ_CLOSE] = DispatchClose;
+	pDriver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DispatchControl;
 
 
 	DbgPrint("加载成功  !\n");

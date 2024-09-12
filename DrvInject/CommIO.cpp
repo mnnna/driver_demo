@@ -45,9 +45,9 @@ NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 		g_fnGetProcAddress = info->fnGetProcAddress;
 		g_fnRtlAddFunction = info->fnRtlAddFunction;
 
-		if (g_fnLoadLibrary == 0 || g_fnGetProcAddress == 0 || g_fnGetProcAddress == 0) {
-			status = STATUS_UNSUCCESSFUL;
-			length = 0;
+		if (g_fnLoadLibrary == 0 || g_fnGetProcAddress == 0 || g_fnRtlAddFunction == 0) {
+			DbgPrint("g_fnGetProcAddress %p,g_fnLoadLibrary:%p,g_fnAddFuntionTable:%p", g_fnGetProcAddress, g_fnLoadLibrary, g_fnRtlAddFunction);
+			return STATUS_UNSUCCESSFUL;
 		}
 	
 		wchar_t DllR0Name[MAX_PATH] = { 0 }; // whar_t unicode ¿í×Ö·û 
@@ -74,6 +74,6 @@ NTSTATUS DispatchControl(PDEVICE_OBJECT DeviceObject, PIRP pIrp) {
 
 	IoCompleteRequest(pIrp, IO_NO_INCREMENT);
 
-	return STATUS_SUCCESS;
+	return status;
 
 }

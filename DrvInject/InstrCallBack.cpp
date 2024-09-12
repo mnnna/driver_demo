@@ -86,21 +86,28 @@ char g_instcall_shellcode[] =
 
 NTSTATUS inst_callback_set_callback(PVOID insta_callback) {
 	NTSTATUS status = STATUS_SUCCESS;
-	PVOID InstCallBack = insta_callback;
-	PACCESS_TOKEN Token = { 0 };
-	PULONG TokenMask = { 0 };
-	
-	Token = PsReferencePrimaryToken(IoGetCurrentProcess()); // 获取 _EPROCESS 下的 TOKEN， 并置位来获取调试特权
-	TokenMask = (PULONG)((ULONG_PTR)Token + 0x40);
+	PACCESS_TOKEN Token{ 0 };
+	PULONG TokenMask{ 0 };
+	PVOID InstCallBack = insta_callback;//instcallback地址
 
+
+
+	Token = PsReferencePrimaryToken(IoGetCurrentProcess());
+
+	//设置调试位
+	TokenMask = (PULONG)((ULONG_PTR)Token + 0x40);
+	//21位是DEBUG权限(位20)
 	TokenMask[0] |= 0x100000;
 	TokenMask[1] |= 0x100000;
 	TokenMask[2] |= 0x100000;
 
-	status = ZwSetInformationProcess(NtCurrentProcess(), ProcessInstrumentationCallback, &insta_callback, sizeof(PVOID)); // 用于设置或修改指定进程的各种属性或配置信息。这个函数提供了一种灵活的方式，允许驱动程序或内核模式代码对进程的行为、状态和内部属性进行控制和调整。
+	//设置InstCallBack
+	status = ZwSetInformationProcess(NtCurrentProcess(), ProcessInstrumentationCallback, &InstCallBack, sizeof(PVOID));
 
 	if (!NT_SUCCESS(status)) Log("failed to set instcall back", true, status);
 	else Log("set instcall back success", 0, 0);
+
+
 
 	return status;
 
@@ -140,7 +147,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 		break;
 	}
 	DbgPrint("pDllMem: %p\n", pDllMem);
-	if (pDllMem && MmIsAddressValid(pDllMem)) {
+	if (pManualMapData && MmIsAddressValid(pManualMapData)) {
 		__try {
 			while (1) {
 				if (((Manual_Mapping_data*)pManualMapData)->bStart) break;
@@ -158,7 +165,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 
 	if (pManualMapData && MmIsAddressValid(pManualMapData) && PsLookupProcessByProcessId(process_id, &Process) != STATUS_PENDING) {
 		__try {
-				DbgPrint("point: %s\n", (((Manual_Mapping_data*)pManualMapData))->pBase);
+				DbgPrint("pbase: %s\n", (((Manual_Mapping_data*)pManualMapData))->pBase);
 				*(PUCHAR)((((Manual_Mapping_data*)pManualMapData))->pBase) = 0;
 				((Manual_Mapping_data*)pManualMapData)->bContinue = true; 
 
@@ -181,6 +188,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	char* pStartMapAdd = 0; //R3层地址 通过ZwAllocatevirtual Dll从PE头开始的地址
 	size_t AllocSize = 0;
 	size_t RetSize = 0;
+	size_t DllSize;
 	Manual_Mapping_data ManualMapData = { 0 };
 	PVOID pManuaMapData = 0 , pShellCode=0;
 	IMAGE_NT_HEADERS* pNTHeader = nullptr;
@@ -209,6 +217,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 		Log("failed to alloc memory", true, status);
 		return status;
 	}
+	DllSize = AllocSize;
 	RtlSecureZeroMemory(pStartMapAdd, AllocSize);
 
 
@@ -223,14 +232,14 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	ManualMapData.bContinue = false;   
 	ManualMapData.bFirst = true;
 	ManualMapData.bStart = false;
-	ManualMapData.DllSize = AllocSize;
+	ManualMapData.DllSize = DllSize;
 
 	if (!NT_SUCCESS(status)) {  
 		Log("FAILED to get aollcate mem", true, status);
 		return status;
 	}
 
-	RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize)); 
+	/*RtlSecureZeroMemory(pStartMapAdd, sizeof(AllocSize)); */
 
 	
 
@@ -271,7 +280,7 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 	}
 
 	// 映射 shellcode, 把 shellcode 加载到内存中
-	status =  ZwAllocateVirtualMemory(NtCurrentProcess(), &pShellCode, NULL, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	status =  ZwAllocateVirtualMemory(NtCurrentProcess(), &pShellCode, 0, &AllocSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	if (!NT_SUCCESS(status)) {
 		Log("FAILED to alloc  mem for shellcode", true, status);
 		return status;
@@ -324,14 +333,14 @@ PUCHAR install_callback_get_dll_memory(UNICODE_STRING* us_dll_path)
 	PUCHAR pDllMemory = { 0 };
 
 	InitializeObjectAttributes(&objattr, us_dll_path, OBJ_CASE_INSENSITIVE, 0, 0);
-	status =  ZwCreateFile(&hFile, GENERIC_READ, &objattr, &IoStatusBlock, &lainter, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ| FILE_SHARE_WRITE| FILE_SHARE_DELETE , FILE_OPEN, 0,0,0);
+	status =  ZwCreateFile(&hFile, GENERIC_READ, &objattr, &IoStatusBlock, &lainter, FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ | FILE_SHARE_DELETE | FILE_SHARE_WRITE, FILE_OPEN, 0,0,0);
 	if (!NT_SUCCESS(status)) {
 		Log("failed to ctreate dll", true, status);
 		status = STATUS_UNSUCCESSFUL;
 		return 0;
 	}
 
-	status = ZwQueryInformationFile(hFile, &IoStatusBlock, &fileinfo, sizeof(fileinfo), FileStandardInformation);// 获取 dll 的大小
+	status = ZwQueryInformationFile(hFile, &IoStatusBlock, &fileinfo, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);// 获取 dll 的大小
 	FileSize = (ULONG64)fileinfo.AllocationSize.QuadPart;
 	if (!NT_SUCCESS(status)) {
 		Log("failed to get size info ", true, status);
