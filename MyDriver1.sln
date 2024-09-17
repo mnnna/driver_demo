@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HackInject", "HackInject\Ha
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrvInject", "DrvInject\DrvInject.vcxproj", "{5B41649F-47D8-4DBB-9AE2-AB5FD44E5F3D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Handle_Derank", "Handle_Derank\Handle_Derank.vcxproj", "{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -215,6 +217,24 @@ Global
 		{5B41649F-47D8-4DBB-9AE2-AB5FD44E5F3D}.Release|x86.ActiveCfg = Release|x64
 		{5B41649F-47D8-4DBB-9AE2-AB5FD44E5F3D}.Release|x86.Build.0 = Release|x64
 		{5B41649F-47D8-4DBB-9AE2-AB5FD44E5F3D}.Release|x86.Deploy.0 = Release|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|ARM64.Build.0 = Debug|ARM64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|x64.ActiveCfg = Debug|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|x64.Build.0 = Debug|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|x64.Deploy.0 = Debug|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|x86.ActiveCfg = Debug|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|x86.Build.0 = Debug|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Debug|x86.Deploy.0 = Debug|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|ARM64.ActiveCfg = Release|ARM64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|ARM64.Build.0 = Release|ARM64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|ARM64.Deploy.0 = Release|ARM64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x64.ActiveCfg = Release|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x64.Build.0 = Release|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x64.Deploy.0 = Release|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x86.ActiveCfg = Release|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x86.Build.0 = Release|x64
+		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x86.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
