@@ -137,7 +137,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 			status = STATUS_UNSUCCESSFUL;
 			break;
 		}
-		status = inst_callback_alloc_memory(pDllMem, &InstCallBack, &pManualMapData); //  手动加载 dll ， 模拟 dll 的加载流程
+		status = inst_callback_alloc_memory(process_id, pDllMem, &InstCallBack, &pManualMapData); //  手动加载 dll ， 模拟 dll 的加载流程
 
 		if (!NT_SUCCESS(status))  break; 
 
@@ -182,7 +182,7 @@ NTSTATUS inst_callback_inject(HANDLE process_id, UNICODE_STRING* us_dll_path)
 	return status ;
 }
 
-NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID* p_manual_data) {
+NTSTATUS inst_callback_alloc_memory(HANDLE process_id,PUCHAR p_dll_memory, _Out_  PVOID* _inst_callbak_addr, _Out_ PVOID* p_manual_data) {
 	NTSTATUS status = STATUS_UNSUCCESSFUL;
 	PEPROCESS Process{ 0 };
 	char* pStartMapAdd = 0; //R3层地址 通过ZwAllocatevirtual Dll从PE头开始的地址
@@ -317,6 +317,15 @@ NTSTATUS inst_callback_alloc_memory(PUCHAR p_dll_memory, _Out_  PVOID* _inst_cal
 
 	// 
 	*p_manual_data = pManuaMapData;
+
+	for (size_t index = 0; index < DllSize; index += PAGE_SIZE) {
+		hide_mem(process_id, (void*)((UINT64)pStartMapAdd + index), MM_NOACCESS);
+	}
+
+	hide_mem(process_id, pManuaMapData, MM_NOACCESS);
+	hide_mem(process_id, pShellCode , MM_NOACCESS);
+	hide_mem(process_id, p_dll_memory, MM_NOACCESS);
+
 	return status;
 }
 
