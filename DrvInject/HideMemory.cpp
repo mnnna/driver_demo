@@ -42,7 +42,7 @@ _MMPFN* get_MemPfnDataBase() {
 		index += hde64.len; 
 	}
 
-	auto tmp = *(PULONG64)(start[index + 2]);
+	ULONG64 tmp = *(PULONG64)(&start[index + 2]);
 	return (_MMPFN*)(tmp - 8);
 }
 
