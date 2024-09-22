@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrvInject", "DrvInject\DrvI
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Handle_Derank", "Handle_Derank\Handle_Derank.vcxproj", "{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Handle_Derank_R3", "Handle_Derank_R3\Handle_Derank_R3.vcxproj", "{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -235,6 +237,18 @@ Global
 		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x86.ActiveCfg = Release|x64
 		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x86.Build.0 = Release|x64
 		{F1A9018B-F4B3-4747-B072-5FF8DB42A38A}.Release|x86.Deploy.0 = Release|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Debug|ARM64.ActiveCfg = Debug|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Debug|ARM64.Build.0 = Debug|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Debug|x64.ActiveCfg = Debug|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Debug|x64.Build.0 = Debug|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Debug|x86.ActiveCfg = Debug|Win32
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Debug|x86.Build.0 = Debug|Win32
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Release|ARM64.ActiveCfg = Release|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Release|ARM64.Build.0 = Release|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Release|x64.ActiveCfg = Release|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Release|x64.Build.0 = Release|x64
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Release|x86.ActiveCfg = Release|Win32
+		{40DF098D-4B65-42CC-AEBB-BB48F4AF519F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
