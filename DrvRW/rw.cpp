@@ -15,12 +15,19 @@ namespace rw {
 
 
 	auto FakeOpenProcess(HANDLE pid) -> HANDLE {
-		PEPROCESS 
-		
+		PEPROCESS Process;
 		PEPROCESS FakeProcess;
+		HANDLE hProcess; 
+		NTSTATUS state;
 
+		FakeProcess = CopyEprocess(Process);
+		state = ObOpenObjectByPointer(FakeProcess, 0, 0, PROCESS_ALL_ACCESS, *PsProcessType, KernelMode, &hProcess); // 这个函数能根据传进来的句柄创建一个对象
 
+		if (!NT_SUCCESS(state)) {
+			DbgPrint("failed to open process\n");
+			return nullptr;
+		}
 
-		CopyProcess()
+		return hProcess;
 	}
 }
