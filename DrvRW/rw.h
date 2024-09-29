@@ -3,7 +3,5 @@
 #include <ntddk.h>
 
 namespace rw {
-	auto FakeOpenProcess(HANDLE pid) -> HANDLE {
-		
-	}
+	auto FakeOpenProcess(HANDLE pid) -> HANDLE;
 }
