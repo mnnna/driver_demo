@@ -12,8 +12,9 @@ namespace rw {
 	static auto GetObHeaderCookie() -> ULONG {
 		auto process = IoGetCurrentProcess();
 		auto code1 = *(unsigned char*)((UINT_PTR)process - 0x18);
-		auto code1 = (unsigned char*)(((UINT_PTR)process - 0x30)>>8);
+		auto code2 = (unsigned char)(((UINT_PTR)process - 0x30)>>8);
 
+		return (7 ^ code1 ^ code2);
 	}
 	static auto CopyEprocess(PEPROCESS process) -> PEPROCESS {
 
@@ -38,7 +39,12 @@ namespace rw {
 
 		auto offset = (UINT_PTR)cprocess & 0xfff;
 		*(PUINT_PTR)((UINT_PTR)fProcess + offset + 0x28) = VaToPa(fakeCr3);// 替换 Cr3 ， CR3 的值存储在 KPROCESS 的 DirectoryTableBase 成员中 。将 fProcess（一个指向进程结构体的指针）转换为 UINT_PTR，即一个无符号整数类型，用于指针运算。
+		auto ObHeaderCookie = GetObHeaderCookie();
+		auto TypeIndex = (unsigned char)ObHeaderCookie ^ (unsigned char)(((UINT_PTR)fProcess + offset - 0x30) >> 8) ^ 7;
 
+		*(unsigned char*)((UINT_PTR)fProcess + offset - 0x18) = TypeIndex;
+
+		return (PEPROCESS)((UINT_PTR)fProcess + offset);
 	}
 
 

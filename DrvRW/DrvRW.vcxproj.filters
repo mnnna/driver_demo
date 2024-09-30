@@ -20,20 +20,27 @@
     <Filter Include="RW">
       <UniqueIdentifier>{a6b0bf75-532c-45a6-a055-d8e750610560}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Inf Include="DrvRW.inf">
-      <Filter>Driver Files</Filter>
-    </Inf>
+    <Filter Include="Comm">
+      <UniqueIdentifier>{08da8b21-2716-4e22-88a2-d7df94d8d11d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="rw.cpp">
       <Filter>RW</Filter>
     </ClCompile>
+    <ClCompile Include="comm.cpp">
+      <Filter>Comm</Filter>
+    </ClCompile>
+    <ClCompile Include="DrvMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rw.h">
       <Filter>RW</Filter>
+    </ClInclude>
+    <ClInclude Include="comm.h">
+      <Filter>Comm</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -95,6 +95,7 @@
     <ClCompile>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
