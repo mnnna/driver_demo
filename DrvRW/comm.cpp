@@ -25,7 +25,7 @@ namespace common {
 		PVOID PortCookie,
 		PVOID InputBuffer,
 		ULONG InputBufferLength,
-		PVOID OutputBuffer,
+		PVOID OutputBuffer /*传递给给 r3 的数据*/ , 
 		ULONG OutputBufferLength,
 		PULONG ReturnOutputBufferLength )->NTSTATUS{
 		
@@ -36,8 +36,11 @@ namespace common {
 		 UNREFERENCED_PARAMETER(OutputBufferLength);
 		 UNREFERENCED_PARAMETER(ReturnOutputBufferLength);
 
+		 // 拿到r3 的pid， 通过 pid 伪造句柄返回
+
+
 		 DbgPrint("msgCallBack");    // 传递伪造的句柄给三环
-		 return STATUS_SUCCESS;
+		 return CommonFunc(InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnOutputBufferLength); // 在DrvMain 里调用 createCommonPort 就会注册这些函数
 	}
 
 	auto disconnectCallBack(PVOID ConnectionCookie){
@@ -52,9 +55,14 @@ namespace common {
 	}
 
 
-	auto createCommonPort(PDRIVER_OBJECT driverObject, PUNICODE_STRING RegisterPath) -> NTSTATUS {
+	auto createCommonPort(PDRIVER_OBJECT driverObject, PUNICODE_STRING RegisterPath, fnCommoFunc func) -> NTSTATUS {
 
 		UNREFERENCED_PARAMETER(RegisterPath);
+
+		if (func == nullptr) {
+			return STATUS_UNSUCCESSFUL;
+		}
+		CommonFunc = func;
 
 		NTSTATUS status;
 		auto freg = FLT_REGISTRATION{
