@@ -16,6 +16,23 @@ namespace rw {
 
 		return (7 ^ code1 ^ code2);
 	}
+
+	auto commonIO(void* inbuf, ULONG inlen, void* outbuf, ULONG outlen, PULONG writenlen) -> NTSTATUS {
+		NTSTATUS status;
+		if (MmIsAddressValid(inbuf) || MmIsAddressValid(outbuf) || outlen < sizeof(HANDLE)) {
+			status = STATUS_UNSUCCESSFUL;
+			DbgPrint("arg is error \n");
+			return status; 
+		}
+
+		*(PHANDLE)outbuf = FakeOpenProcess(*(PHANDLE)inbuf);
+		if (*(PHANDLE)outbuf) {
+			*writenlen = sizeof(HANDLE);
+			return STATUS_SUCCESS;
+		}
+		return STATUS_UNSUCCESSFUL;
+	}
+
 	static auto CopyEprocess(PEPROCESS process) -> PEPROCESS {
 
 		KAPC_STATE apc = { 0 };
