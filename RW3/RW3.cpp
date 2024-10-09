@@ -4,6 +4,9 @@
 #include <iostream>
 #include <fltUser.h>
 
+#pragma comment(lib,"fltlib.lib")
+#pragma comment(lib,"fltmgr.lib")
+
 HANDLE  port = nullptr;
 int main()
 {

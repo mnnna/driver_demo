@@ -17,6 +17,28 @@ namespace rw {
 		return (7 ^ code1 ^ code2);
 	}
 
+	static auto GetVadOffset()-> ULONG {
+		auto offset = 0ul; 
+		UNICODE_STRING funcname = RTL_CONSTANT_STRING(L"PsGetProcessExitStatus");
+		auto p = (PUCHAR)MmGetSystemRoutineAddress(&funcname);
+
+		offset = *((PULONG)&p[2]);
+		offset += 4;
+
+		return offset;
+
+	}
+
+	static auto GetPebOffset() -> ULONG {
+		auto offset = 0ul;
+		UNICODE_STRING funcname = RTL_CONSTANT_STRING(L"PsGetProcessPeb");
+		auto p = (PUCHAR)MmGetSystemRoutineAddress(&funcname);
+
+		offset = *((PULONG)&p[3]);
+		return offset;
+
+	}
+
 	auto commonIO(void* inbuf, ULONG inlen, void* outbuf, ULONG outlen, PULONG writenlen) -> NTSTATUS {
 		NTSTATUS status;
 		if (MmIsAddressValid(inbuf) || MmIsAddressValid(outbuf) || outlen < sizeof(HANDLE)) {
@@ -61,6 +83,12 @@ namespace rw {
 
 		*(unsigned char*)((UINT_PTR)fProcess + offset - 0x18) = TypeIndex;
 
+
+		//VAD: _EPROCESS->VadRoot
+		*(PUINT_PTR)((UINT_PTR)fProcess + offset + GetVadOffset()) = *(PUINT_PTR)((UINT_PTR)process + GetVadOffset());
+			
+		//PEB 
+		*(PUINT_PTR)((UINT_PTR)fProcess + offset + GetPebOffset()) = *(PUINT_PTR)((UINT_PTR)process + GetPebOffset());
 		return (PEPROCESS)((UINT_PTR)fProcess + offset);
 	}
 
@@ -78,7 +106,14 @@ namespace rw {
 			return nullptr;
 		}
 
+		ObDereferenceObject(Process);
+
 		FakeProcess = CopyEprocess(Process);
+
+		if (FakeProcess == nullptr) {
+			DbgPrint("failed to Fake Process\n");
+			return nullptr;
+		}
 
 		state = ObOpenObjectByPointer(FakeProcess, 0, 0, PROCESS_ALL_ACCESS, *PsProcessType, KernelMode, &hProcess); // 这个函数能根据传进来的句柄创建一个对象
 

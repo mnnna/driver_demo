@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Handle_Derank_R3", "Handle_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HDrvRW", "DrvRW\DrvRW.vcxproj", "{4CDBB974-6CF7-440D-8F56-F0777BB293DF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RW3", "RW3\RW3.vcxproj", "{A00338D3-AE49-4EC5-9B78-4C4421847FF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -269,6 +271,18 @@ Global
 		{4CDBB974-6CF7-440D-8F56-F0777BB293DF}.Release|x86.ActiveCfg = Release|x64
 		{4CDBB974-6CF7-440D-8F56-F0777BB293DF}.Release|x86.Build.0 = Release|x64
 		{4CDBB974-6CF7-440D-8F56-F0777BB293DF}.Release|x86.Deploy.0 = Release|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Debug|ARM64.ActiveCfg = Debug|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Debug|ARM64.Build.0 = Debug|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Debug|x64.ActiveCfg = Debug|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Debug|x64.Build.0 = Debug|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Debug|x86.ActiveCfg = Debug|Win32
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Debug|x86.Build.0 = Debug|Win32
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Release|ARM64.ActiveCfg = Release|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Release|ARM64.Build.0 = Release|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Release|x64.ActiveCfg = Release|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Release|x64.Build.0 = Release|x64
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Release|x86.ActiveCfg = Release|Win32
+		{A00338D3-AE49-4EC5-9B78-4C4421847FF5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
